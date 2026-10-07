@@ -102,6 +102,12 @@ small.n{display:block;font-size:12px;color:var(--fg2);margin:6px 6px 0;line-heig
 .sum .sl{font-size:1.7cqw}
 #lb{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.82);display:none;place-items:center}#lb.on{display:grid}#lb img{max-width:92vw;max-height:92vh;border-radius:18px}
 @media(max-width:640px){.day{grid-template-columns:1fr}}
+
+.evs h2{font-size:3.4cqw;font-weight:700;letter-spacing:-.02em;margin-bottom:1.6cqw}
+.gal{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:1.4cqw;flex:1;min-height:0}
+.gal figure{display:flex;flex-direction:column;min-height:0;gap:.5cqw}
+.gal .gi{width:100%;flex:1;min-height:0;height:auto;border-radius:1.6cqw}
+.gal figcaption{font-size:1.3cqw;color:var(--fg2);line-height:1.25;max-height:3.4cqw;overflow:hidden}.gal figcaption b{display:block;color:var(--fg)}
 </style>
 </head>
 <body>
@@ -173,7 +179,7 @@ function csv(t){const r=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){c
 const isD=v=>/^\d{1,2}$/.test((v||'').trim())&&+v>=1&&+v<=31;
 const junk=/^(mon|tue|wed|thu|fri|sat|sun|sen|sel|rab|kam|jum|sab|min)\w*$|^[mtwfsrk]$/i;
 const isMonth=x=>MN.some(m=>m.toLowerCase()===x.trim().toLowerCase())||MI.some(m=>m.toLowerCase()===x.trim().toLowerCase());
-let dirty=false,evFor=null;const EV={};let EDIT={};try{EDIT=JSON.parse(localStorage.getItem('wp-edits')||'{}')}catch(e){}
+let dirty=false,evFor=null,EVSTAT={rows:0,miss:0,err:'',why:''};const EV={};let EDIT={};try{EDIT=JSON.parse(localStorage.getItem('wp-edits')||'{}')}catch(e){}
 const CATS=[[/off\s?day|libur|cuti/i,'Off Day'],[/interview|rekrut/i,'Rekrutmen'],[/visit|kunjungan/i,'Store Visit'],[/meeting|rapat|briefing/i,'Meeting'],[/monitor|check|cek|audit/i,'Monitoring'],[/training|pelatihan|coaching|role ?play/i,'Training'],[/reminder|koordinasi|follow/i,'Koordinasi'],[/revisi|report|laporan|keynote|materi|presentasi|deck|slide/i,'Administrasi & Materi']];
 const catOf=t=>(CATS.find(c=>c[0].test(t))||[0,'Lainnya'])[1];
 /* satu sel tanggal -> daftar aktivitas. Baris "Visit Mxxx ..." = toko; baris "- ..." = aktivitas; "Catatan:/Kendala:" dan "Action Plan:/Tindak lanjut:" opsional */
@@ -200,17 +206,17 @@ function dayOf(v,y,m){v=String(v||'').trim();let x;if(!v)return 0;
   return 0}
 async function loadEv(force){
   const key=`${S.year}-${M}`;if(evFor===key&&!force)return;
-  Object.keys(EV).forEach(k=>delete EV[k]);
+  Object.keys(EV).forEach(k=>delete EV[k]);EVSTAT={rows:0,miss:0,err:'',why:''};
   try{let rows;
-    if(S.script){const r=await fetch(S.script+(S.script.includes('?')?'&':'?')+`m=${S.year}-${String(M+1).padStart(2,'0')}`);rows=(await r.json()).map(o=>[o.tanggal,o.foto,o.aktivitas])}
+    if(S.script){const r=await fetch(S.script+(S.script.includes('?')?'&':'?')+`m=${S.year}-${String(M+1).padStart(2,'0')}`);const j=await r.json();if(!Array.isArray(j))throw new Error(j.error||'respons Apps Script tidak valid');rows=j.map(o=>[o.tanggal,o.foto,o.aktivitas,o.err])}
     else{const r=await fetch(`https://docs.google.com/spreadsheets/d/${sid()}/gviz/tq?tqx=out:csv&sheet=Evidence`);rows=csv(await r.text()).slice(1)}
     let miss=0;
-    rows.forEach(r=>{const d=dayOf(r[0],+S.year,M);if(!d)return;let f=String(r[1]||'').trim().replace(/^=IMAGE\("?([^")]+)"?.*$/i,'$1');
+    rows.forEach(r=>{const d=dayOf(r[0],+S.year,M);if(!d)return;EVSTAT.rows++;let f=String(r[1]||'').trim().replace(/^=IMAGE\("?([^")]+)"?.*$/i,'$1');
       const dm=f.match(/drive\.google\.com\/file\/d\/([\w-]+)/);if(dm)f=`https://drive.google.com/thumbnail?id=${dm[1]}&sz=w1000`;
-      if(!/^(https?:|data:image)/.test(f)){miss++;f=''}
+      if(!/^(https?:|data:image)/.test(f)){miss++;EVSTAT.miss++;if(r[3])EVSTAT.why=r[3];f=''}
       (EV[`${S.year}-${M}-${d}`]=EV[`${S.year}-${M}-${d}`]||[]).push({foto:f,akt:r[2]||''})});
     evFor=key;if(miss&&!S.script)toast(`${miss} foto evidence tidak terbaca dari link. Foto "insert image in cell" butuh Apps Script (lihat Preferences).`)
-  }catch(e){evFor=null;toast('Tab Evidence tidak terbaca.')}}
+  }catch(e){evFor=null;EVSTAT.err=String(e.message||e)}}
 const sid=()=>(S.sheet.match(/\/d\/([\w-]+)/)||S.sheet.match(/^([\w-]{20,})$/)||[])[1];
 function cands(m){const f=MN[m],sh=f.slice(0,3),mm=String(m+1).padStart(2,'0');
   const p=(S.tab||'{Month}').replace('{Month}',f).replace('{MONTH}',f.toUpperCase()).replace('{Mon}',sh).replace('{MM}',mm);
@@ -251,6 +257,9 @@ function build(state){
     const info={day:DY[wd],date:`${d} ${MI[M]} ${Y}`,bulan:MI[M],week:W+1,tokos,sum};
     const chunks=items.length?Array.from({length:Math.ceil(items.length/3)},(_,c)=>items.slice(c*3,c*3+3)):[[]];
     chunks.forEach((ch,c)=>out.push({t:'day',...info,items:ch,page:c+1,pages:chunks.length,extra:c===chunks.length-1?ph.extra:[]}))});
+  const evp=[];wk.forEach(d=>{const wd=(new Date(Y,M,d).getDay()+6)%7;(EV[gk(d)]||[]).filter(p=>p.foto).forEach(p=>evp.push({day:DY[wd],date:`${d} ${MI[M].slice(0,3)}`,akt:p.akt,foto:p.foto}))});
+  const msg=EVSTAT.err?`Tab Evidence tidak terbaca: ${EVSTAT.err}`:EVSTAT.rows?`${EVSTAT.rows} baris Evidence ditemukan di bulan ini, tetapi foto untuk week ini tidak ada atau tidak terbaca${EVSTAT.why?` (${EVSTAT.why})`:''}. Pasang atau deploy ulang Apps Script di Preferences.`:'Belum ada baris Evidence untuk bulan ini. Periksa kolom Tanggal (A) di tab Evidence.';
+  const epg=Math.max(1,Math.ceil(evp.length/6));for(let c=0;c<epg;c++)out.push({t:'ev',page:c+1,pages:epg,ph:evp.slice(c*6,c*6+6),msg});
   const tokos=[...new Set(all.map(i=>i.toko).filter(Boolean))],cc={};all.forEach(i=>cc[i.cat]=(cc[i.cat]||0)+1);
   const cats=Object.entries(cc).sort((a,b)=>b[1]-a[1]),act=lines.filter(l=>!l[1].startsWith('Belum')).length;
   const kend=all.filter(i=>i.n).length,aksi=all.filter(i=>i.a).length;
@@ -263,6 +272,7 @@ function slideHTML(s){
   if(s.t==='cover')return `<section class="slide cover"><h1>${esc(s.h)}</h1><p>${esc(s.sub)}</p><div class="who"><b>${esc(S.name)}</b><span>${esc(S.title)}</span></div></section>`;
   if(s.t==='day')return `<section class="slide day"><div class="l"><h2>${s.day}</h2><div class="d">${s.date}${s.pages>1?`, bagian ${s.page}/${s.pages}`:''}</div><div class="m"><span>${s.bulan}</span><span>Week ${s.week}</span></div>${s.tokos.length?`<div class="s">Toko: ${esc(s.tokos.join(', '))}</div>`:''}<div class="s">${esc(s.sum)}</div></div>
     <div class="items">${s.items.length?s.items.map(i=>`<div class="it"><div><span class="cat">${esc(i.cat)}</span></div><div class="ph">${phHTML(i.ph)}</div><div class="t">${esc(i.text)}</div><div class="f"><div><label>Catatan / Kendala</label><p contenteditable data-k="${i.k}" data-f="n" data-ph="Ketuk untuk isi">${esc(i.n)}</p></div><div><label>Action Plan / Tindak Lanjut</label><p contenteditable data-k="${i.k}" data-f="a" data-ph="Ketuk untuk isi">${esc(i.a)}</p></div></div></div>`).join(''):'<div class="empty">Belum ada aktivitas di kalender</div>'}${s.extra.length?`<div class="ex">Foto evidence lainnya<div class="ph">${phHTML(s.extra)}</div></div>`:''}</div></section>`;
+  if(s.t==='ev')return `<section class="slide evs"><h2>Foto Evidence${s.pages>1?`, bagian ${s.page}/${s.pages}`:''}</h2>${s.ph.length?`<div class="gal">${s.ph.map(p=>`<figure><img class="pi gi" src="${esc(p.foto)}" alt="Foto evidence" loading="lazy"><figcaption><b>${p.day}, ${p.date}</b>${esc(p.akt)}</figcaption></figure>`).join('')}</div>`:`<div class="msg">${esc(s.msg)}</div>`}</section>`;
   if(s.t==='sum')return `<section class="slide sum"><h2>Summary ${esc('Week '+(W+1))}</h2><div class="stats"><div><b>${s.total}</b>aktivitas</div><div><b>${s.act}/${s.days}</b>hari terisi</div><div><b>${s.tokos.length}</b>toko</div><div><b>${s.foto}</b>foto evidence</div></div><p class="nar">${esc(s.text)}</p><div class="cats">${s.cats.map(c=>`<span class="cat">${esc(c[0])} ${c[1]}</span>`).join('')}</div><div class="sl">${s.lines.map(l=>`<p><b>${l[0]}</b>${esc(l[1])}</p>`).join('')}</div></section>`;
   return `<section class="slide"><div class="msg">${esc(s.m)}</div></section>`}
 function render(){
@@ -305,6 +315,11 @@ async function exportDeck(key){
       [...s.items.flatMap(i=>i.ph||[]),...s.extra].slice(0,6).forEach((src,n)=>{
         const o={x:6.95+(n%2)*1.5,y:1.4+Math.floor(n/2)*1.25,w:1.4,h:1.15,sizing:{type:'cover',w:1.4,h:1.15}};
         if(src.startsWith('data:'))o.data=src.slice(5);else o.path=src;try{sl.addImage(o)}catch(e){}})}
+    if(s.t==='ev'){sl.addText('Foto Evidence'+(s.pages>1?` (${s.page}/${s.pages})`:''),{x:.5,y:.25,w:9,h:.6,fontSize:28,bold:true,color:FG});
+      s.ph.forEach((p,n)=>{const x=.5+(n%3)*3.05,y=1+Math.floor(n/3)*2.2,o={x,y,w:2.9,h:1.6,sizing:{type:'cover',w:2.9,h:1.6}};
+        if(p.foto.startsWith('data:'))o.data=p.foto.slice(5);else o.path=p.foto;try{sl.addImage(o)}catch(e){}
+        sl.addText(`${p.day}, ${p.date}: ${p.akt}`,{x,y:y+1.62,w:2.9,h:.5,fontSize:10,color:MU,valign:'top'})});
+      if(!s.ph.length)sl.addText(s.msg,{x:.5,y:2,w:9,h:1.2,fontSize:16,color:MU})}
     if(s.t==='sum'){sl.addText(`Summary Week ${W+1}`,{x:.6,y:.4,w:8.8,h:.8,fontSize:36,bold:true,color:FG});
       sl.addText(`${s.total} aktivitas | ${s.act}/${s.days} hari terisi | ${s.tokos.length} toko | ${s.foto} foto`,{x:.6,y:1.2,w:8.8,h:.4,fontSize:16,color:AC});
       sl.addText(s.text,{x:.6,y:1.8,w:8.8,h:1.4,fontSize:16,color:FG,valign:'top'});
