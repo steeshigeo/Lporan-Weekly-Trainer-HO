@@ -82,6 +82,26 @@ small.n{display:block;font-size:12px;color:var(--fg2);margin:6px 6px 0;line-heig
 #toast.on{opacity:1;transform:translate(-50%,0)}
 @media(max-width:640px){.ttl{display:none}.app{padding-left:14px;padding-top:74px}.top{overflow:hidden}.day{grid-template-columns:1fr;gap:1.5cqw}.day h2{font-size:7cqw}}
 @media(prefers-reduced-motion:reduce){*{transition-duration:.01s!important}}
+
+.day{display:grid;grid-template-columns:30% 1fr;gap:3.5cqw;padding:4cqw 5cqw}
+.day .m{display:flex;gap:.8cqw;margin-top:1.2cqw;flex-wrap:wrap}
+.day .m span,.cat{background:var(--acc);color:#fff;border-radius:99px;padding:.3cqw 1.2cqw;font-size:1.4cqw;font-weight:600;display:inline-block}
+.day .m span{background:var(--chip);color:var(--fg);border:1px solid var(--gb)}
+.day .s{font-size:1.7cqw;color:var(--fg2)}
+.it{display:grid;grid-template-columns:1fr auto;gap:.8cqw 1.5cqw;font-size:1.6cqw;padding:1.1cqw 1.6cqw;border-radius:1.8cqw;flex:none}
+.it .t{font-weight:600;font-size:1.9cqw;grid-column:1}
+.it .f{display:grid;grid-template-columns:1fr 1fr;gap:1.2cqw;grid-column:1}
+.it label{display:block;font-size:1.2cqw;color:var(--fg2)}
+.it p{min-height:2cqw;outline:0;border-bottom:1px dashed var(--gb);line-height:1.3}
+.it p:empty::before{content:attr(data-ph);color:var(--fg2);opacity:.55}
+.it .ph{grid-column:2;grid-row:1/4;display:flex;flex-wrap:wrap;gap:.6cqw;max-width:17cqw;justify-content:flex-end;align-content:flex-start}
+.pi{width:8cqw;height:6cqw;object-fit:cover;border-radius:1.2cqw;cursor:zoom-in}
+.ex{flex:none;font-size:1.3cqw;color:var(--fg2)}.ex .ph{display:flex;gap:.6cqw;margin-top:.5cqw}
+.nar{font-size:2cqw;line-height:1.45}
+.cats{display:flex;gap:1cqw;flex-wrap:wrap;margin:1.2cqw 0}
+.sum .sl{font-size:1.7cqw}
+#lb{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.82);display:none;place-items:center}#lb.on{display:grid}#lb img{max-width:92vw;max-height:92vh;border-radius:18px}
+@media(max-width:640px){.day{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -101,6 +121,7 @@ small.n{display:block;font-size:12px;color:var(--fg2);margin:6px 6px 0;line-heig
     <div class="row"><label for="pSheet">Link Google Sheet</label><input id="pSheet" autocomplete="off"></div>
     <div class="row"><label for="pYear">Tahun</label><input id="pYear" type="number" min="2000" max="2100"></div>
     <div class="row"><label for="pTab">Pola nama tab bulan</label><input id="pTab" placeholder="{Month}" autocomplete="off"></div>
+    <div class="row"><label for="pScript">URL Apps Script (foto evidence)</label><input id="pScript" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off"></div>
   </div>
   <small class="n">Pola: {Month} = January, {Mon} = Jan, {MM} = 01. Jika tidak cocok, app mencoba nama umum lain otomatis. Sheet harus dibagikan "Anyone with the link".</small>
   <button class="btn pri" id="reload">Simpan dan muat ulang data</button>
@@ -124,6 +145,7 @@ small.n{display:block;font-size:12px;color:var(--fg2);margin:6px 6px 0;line-heig
     <button id="fs" aria-label="Layar penuh" style="font-size:16px">&#x26F6;</button>
   </div>
 </main>
+<div id="lb"><img alt="Foto evidence"></div>
 <div id="toast" class="glass"></div>
 
 <script>
@@ -131,7 +153,7 @@ const $=s=>document.querySelector(s);
 const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MI=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const DY=['Senin','Selasa','Rabu','Kamis','Jumat'];
-const DEF={sheet:'https://docs.google.com/spreadsheets/d/1EC0f0uUNcu7JJfsGaIZygnbZcza7025r_gnlquH8LrI/edit?usp=sharing',year:new Date().getFullYear(),tab:'{Month}',name:'Frandy Putra',title:'Executive Trainer',theme:'system'};
+const DEF={sheet:'https://docs.google.com/spreadsheets/d/1EC0f0uUNcu7JJfsGaIZygnbZcza7025r_gnlquH8LrI/edit?usp=sharing',year:new Date().getFullYear(),tab:'{Month}',script:'',name:'Frandy Putra',title:'Executive Trainer',theme:'system'};
 let S={...DEF};try{Object.assign(S,JSON.parse(localStorage.getItem('wp-settings')||'{}'))}catch(e){}
 const save=()=>{try{localStorage.setItem('wp-settings',JSON.stringify(S))}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -151,17 +173,44 @@ function csv(t){const r=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){c
 const isD=v=>/^\d{1,2}$/.test((v||'').trim())&&+v>=1&&+v<=31;
 const junk=/^(mon|tue|wed|thu|fri|sat|sun|sen|sel|rab|kam|jum|sab|min)\w*$|^[mtwfsrk]$/i;
 const isMonth=x=>MN.some(m=>m.toLowerCase()===x.trim().toLowerCase())||MI.some(m=>m.toLowerCase()===x.trim().toLowerCase());
+let dirty=false,evFor=null;const EV={};let EDIT={};try{EDIT=JSON.parse(localStorage.getItem('wp-edits')||'{}')}catch(e){}
+const CATS=[[/off\s?day|libur|cuti/i,'Off Day'],[/interview|rekrut/i,'Rekrutmen'],[/visit|kunjungan/i,'Store Visit'],[/meeting|rapat|briefing/i,'Meeting'],[/monitor|check|cek|audit/i,'Monitoring'],[/training|pelatihan|coaching|role ?play/i,'Training'],[/reminder|koordinasi|follow/i,'Koordinasi'],[/revisi|report|laporan|keynote|materi|presentasi|deck|slide/i,'Administrasi & Materi']];
+const catOf=t=>(CATS.find(c=>c[0].test(t))||[0,'Lainnya'])[1];
+/* satu sel tanggal -> daftar aktivitas. Baris "Visit Mxxx ..." = toko; baris "- ..." = aktivitas; "Catatan:/Kendala:" dan "Action Plan:/Tindak lanjut:" opsional */
+function parseCell(txt){const out=[];let toko='';
+  txt.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(l=>{const b=l.replace(/^[-•*–]\s*/,'');let m;
+    if(out.length&&(m=b.match(/^(?:catatan|kendala|note)s?\s*[:：]\s*(.+)/i))){out.at(-1).n=m[1];return}
+    if(out.length&&(m=b.match(/^(?:action plan|tindak lanjut|follow ?up|aksi)\s*[:：]\s*(.+)/i))){out.at(-1).a=m[1];return}
+    if(!/^[-•*–]/.test(l)&&(m=b.match(/^(?:visit|kunjungan)\s+(.+)/i))){toko=m[1];out.push({toko,text:b,cat:'Store Visit',n:'',a:'',head:1});return}
+    out.push({toko,text:b,cat:catOf(b),n:'',a:''})});
+  return out.filter((o,i)=>!o.head||!out.some((p,j)=>j!==i&&!p.head&&p.toko===o.toko))}
 function extract(g){
-  const dr=g.map((row,r)=>row.filter(isD).length>=3?r:-1).filter(r=>r>=0),ev={};
+  const dr=g.map((row,r)=>row.some(isD)?r:-1).filter(r=>r>=0),ev={};
   dr.forEach((r,i)=>{const end=dr[i+1]??g.length,row=g[r];let prev=0,wrapped=false;
     const one=i===0?row.findIndex(v=>(v||'').trim()==='1'):-1;
     row.forEach((v,c)=>{if(!isD(v))return;const d=+v;
       if(d<prev)wrapped=true;prev=d;
       if(wrapped||(i===0&&one>=0&&c<one))return;
-      const notes=[];
-      for(let k=r+1;k<end;k++){const x=(g[k][c]||'').trim();if(x&&!junk.test(x)&&!isMonth(x))notes.push(...x.split(/\n+/).map(s=>s.trim()).filter(Boolean))}
-      if(notes.length)(ev[d]=ev[d]||[]).push(...notes)})});
+      for(let k=r+1;k<end;k++){const x=(g[k][c]||'').trim();if(x&&!junk.test(x)&&!isMonth(x))(ev[d]=ev[d]||[]).push(...parseCell(x))}})});
   return ev}
+function dayOf(v,y,m){v=String(v||'').trim();let x;if(!v)return 0;
+  if(x=v.match(/(\d{4})-(\d{1,2})-(\d{1,2})/))return +x[1]===y&&+x[2]===m+1?+x[3]:0;
+  if(x=v.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/)){const a=+x[1],b=+x[2],yy=+x[3]<100?2000+ +x[3]:+x[3];if(yy!==y)return 0;return b===m+1?a:a===m+1?b:0}
+  if(x=v.match(/(\d{1,2})\s+([A-Za-z]{3,})\s*,?\s*(\d{4})?/)){const k=x[2].slice(0,3).toLowerCase(),f=n=>n.slice(0,3).toLowerCase()===k;return(MN.findIndex(f)===m||MI.findIndex(f)===m)&&(!x[3]||+x[3]===y)?+x[1]:0}
+  return 0}
+async function loadEv(force){
+  const key=`${S.year}-${M}`;if(evFor===key&&!force)return;
+  Object.keys(EV).forEach(k=>delete EV[k]);
+  try{let rows;
+    if(S.script){const r=await fetch(S.script+(S.script.includes('?')?'&':'?')+`m=${S.year}-${String(M+1).padStart(2,'0')}`);rows=(await r.json()).map(o=>[o.tanggal,o.foto,o.aktivitas])}
+    else{const r=await fetch(`https://docs.google.com/spreadsheets/d/${sid()}/gviz/tq?tqx=out:csv&sheet=Evidence`);rows=csv(await r.text()).slice(1)}
+    let miss=0;
+    rows.forEach(r=>{const d=dayOf(r[0],+S.year,M);if(!d)return;let f=String(r[1]||'').trim().replace(/^=IMAGE\("?([^")]+)"?.*$/i,'$1');
+      const dm=f.match(/drive\.google\.com\/file\/d\/([\w-]+)/);if(dm)f=`https://drive.google.com/thumbnail?id=${dm[1]}&sz=w1000`;
+      if(!/^(https?:|data:image)/.test(f)){miss++;f=''}
+      (EV[`${S.year}-${M}-${d}`]=EV[`${S.year}-${M}-${d}`]||[]).push({foto:f,akt:r[2]||''})});
+    evFor=key;if(miss&&!S.script)toast(`${miss} foto evidence tidak terbaca dari link. Foto "insert image in cell" butuh Apps Script (lihat Preferences).`)
+  }catch(e){evFor=null;toast('Tab Evidence tidak terbaca.')}}
 const sid=()=>(S.sheet.match(/\/d\/([\w-]+)/)||S.sheet.match(/^([\w-]{20,})$/)||[])[1];
 function cands(m){const f=MN[m],sh=f.slice(0,3),mm=String(m+1).padStart(2,'0');
   const p=(S.tab||'{Month}').replace('{Month}',f).replace('{MONTH}',f.toUpperCase()).replace('{Mon}',sh).replace('{MM}',mm);
@@ -179,24 +228,45 @@ async function load(m,force){
 /* ---------- weeks & slides ---------- */
 function weeksOf(y,m){const last=new Date(y,m+1,0).getDate(),w=[];let cur=null;
   for(let d=1;d<=last;d++){const wd=(new Date(y,m,d).getDay()+6)%7;if(wd>4)continue;if(wd===0||!cur){cur=[];w.push(cur)}cur.push(d)}return w}
+const gk=d=>`${S.year}-${M}-${d}`;
+const tok=x=>String(x).toLowerCase().match(/[a-z0-9]{3,}/g)||[];
+function photosFor(d,items){const per=items.map(()=>[]),extra=[];
+  (EV[gk(d)]||[]).filter(p=>p.foto).forEach(p=>{const a=tok(p.akt);let best=-1,bs=0;
+    items.forEach((it,i)=>{const b=tok(it.text);if(!a.length||!b.length)return;const sc=a.filter(x=>b.includes(x)).length/Math.min(a.length,b.length);if(sc>bs){bs=sc;best=i}});
+    (bs>=.4?per[best]:extra).push(p.foto)});
+  return{per,extra}}
 function build(state){
-  const wk=weeks[W]||[],ev=state.events||{},Y=+S.year,out=[];
+  const wk=weeks[W]||[],ev=state.events||{},Y=+S.year,out=[],all=[];let foto=0;const lines=[];
   out.push({t:'cover',h:`Week ${W+1}`,sub:`${wk[0]} – ${wk.at(-1)} ${MI[M]} ${Y}`});
-  let total=0,act=0;const lines=[];
-  wk.forEach(d=>{const wd=(new Date(Y,M,d).getDay()+6)%7,items=ev[d]||[];total+=items.length;if(items.length)act++;
-    const sum=items.length?`${items.length} aktivitas, fokus pada ${items[0]}`:'Belum ada aktivitas tercatat';
-    lines.push([DY[wd],sum]);out.push({t:'day',day:DY[wd],date:`${d} ${MI[M]} ${Y}`,items,sum})});
-  out.push({t:'sum',total,act,days:wk.length,lines});return out}
+  wk.forEach(d=>{const wd=(new Date(Y,M,d).getDay()+6)%7,raw=ev[d]||[],ph=photosFor(d,raw);
+    const items=raw.map((it,i)=>{const k=`${gk(d)}-${i}`,e=EDIT[k]||{};return{...it,k,n:e.n??it.n,a:e.a??it.a,ph:ph.per[i]}});
+    items.forEach(i=>all.push(i));foto+=ph.extra.length+items.reduce((n,i)=>n+i.ph.length,0);
+    const tokos=[...new Set(items.map(i=>i.toko).filter(Boolean))];
+    const sum=items.length?`${items.length} aktivitas${tokos.length?` di ${tokos.join(', ')}`:''}, fokus pada ${items[0].cat.toLowerCase()}`:'Belum ada aktivitas tercatat';
+    lines.push([DY[wd],sum]);
+    const info={day:DY[wd],date:`${d} ${MI[M]} ${Y}`,bulan:MI[M],week:W+1,tokos,sum};
+    const chunks=items.length?Array.from({length:Math.ceil(items.length/3)},(_,c)=>items.slice(c*3,c*3+3)):[[]];
+    chunks.forEach((ch,c)=>out.push({t:'day',...info,items:ch,page:c+1,pages:chunks.length,extra:c===chunks.length-1?ph.extra:[]}))});
+  const tokos=[...new Set(all.map(i=>i.toko).filter(Boolean))],cc={};all.forEach(i=>cc[i.cat]=(cc[i.cat]||0)+1);
+  const cats=Object.entries(cc).sort((a,b)=>b[1]-a[1]),act=lines.filter(l=>!l[1].startsWith('Belum')).length;
+  const kend=all.filter(i=>i.n).length,aksi=all.filter(i=>i.a).length;
+  const text=all.length?`Pada Week ${W+1} (${wk[0]}–${wk.at(-1)} ${MI[M]} ${Y}) tercatat ${all.length} aktivitas di ${act} dari ${wk.length} hari kerja.`
+    +(tokos.length?` Toko yang dikunjungi: ${tokos.join(', ')}.`:'')+(cats.length?` Fokus utama: ${cats.slice(0,3).map(c=>`${c[0]} (${c[1]})`).join(', ')}.`:'')
+    +(kend||aksi?` Terdapat ${kend} catatan/kendala dan ${aksi} action plan.`:' Belum ada catatan kendala atau action plan.')+(foto?` ${foto} foto evidence terlampir.`:''):'Belum ada aktivitas yang tercatat di kalender untuk week ini.';
+  out.push({t:'sum',total:all.length,act,days:wk.length,tokos,cats,foto,text,lines});return out}
+const phHTML=a=>(a||[]).map(u=>`<img class="pi" src="${esc(u)}" alt="Foto evidence" loading="lazy">`).join('');
 function slideHTML(s){
   if(s.t==='cover')return `<section class="slide cover"><h1>${esc(s.h)}</h1><p>${esc(s.sub)}</p><div class="who"><b>${esc(S.name)}</b><span>${esc(S.title)}</span></div></section>`;
-  if(s.t==='day')return `<section class="slide day"><div class="l"><h2>${s.day}</h2><div class="d">${s.date}</div><div class="s">${esc(s.sum)}</div></div><div class="items ${s.items.length>6?'many':''}">${s.items.length?s.items.map(i=>`<div class="it">${esc(i)}</div>`).join(''):'<div class="empty">Belum ada aktivitas di kalender</div>'}</div></section>`;
-  if(s.t==='sum')return `<section class="slide sum"><h2>Ringkasan minggu ini</h2><div class="stats"><div><b>${s.total}</b>aktivitas</div><div><b>${s.act}/${s.days}</b>hari terisi</div></div><div class="sl">${s.lines.map(l=>`<p><b>${l[0]}</b>${esc(l[1])}</p>`).join('')}</div></section>`;
+  if(s.t==='day')return `<section class="slide day"><div class="l"><h2>${s.day}</h2><div class="d">${s.date}${s.pages>1?`, bagian ${s.page}/${s.pages}`:''}</div><div class="m"><span>${s.bulan}</span><span>Week ${s.week}</span></div>${s.tokos.length?`<div class="s">Toko: ${esc(s.tokos.join(', '))}</div>`:''}<div class="s">${esc(s.sum)}</div></div>
+    <div class="items">${s.items.length?s.items.map(i=>`<div class="it"><div><span class="cat">${esc(i.cat)}</span></div><div class="ph">${phHTML(i.ph)}</div><div class="t">${esc(i.text)}</div><div class="f"><div><label>Catatan / Kendala</label><p contenteditable data-k="${i.k}" data-f="n" data-ph="Ketuk untuk isi">${esc(i.n)}</p></div><div><label>Action Plan / Tindak Lanjut</label><p contenteditable data-k="${i.k}" data-f="a" data-ph="Ketuk untuk isi">${esc(i.a)}</p></div></div></div>`).join(''):'<div class="empty">Belum ada aktivitas di kalender</div>'}${s.extra.length?`<div class="ex">Foto evidence lainnya<div class="ph">${phHTML(s.extra)}</div></div>`:''}</div></section>`;
+  if(s.t==='sum')return `<section class="slide sum"><h2>Summary ${esc('Week '+(W+1))}</h2><div class="stats"><div><b>${s.total}</b>aktivitas</div><div><b>${s.act}/${s.days}</b>hari terisi</div><div><b>${s.tokos.length}</b>toko</div><div><b>${s.foto}</b>foto evidence</div></div><p class="nar">${esc(s.text)}</p><div class="cats">${s.cats.map(c=>`<span class="cat">${esc(c[0])} ${c[1]}</span>`).join('')}</div><div class="sl">${s.lines.map(l=>`<p><b>${l[0]}</b>${esc(l[1])}</p>`).join('')}</div></section>`;
   return `<section class="slide"><div class="msg">${esc(s.m)}</div></section>`}
 function render(){
   $('#stage').innerHTML=slides.map(slideHTML).join('');
   $('#dots').innerHTML=slides.map(()=>'<i></i>').join('');
   I=Math.min(I,slides.length-1);go(I)}
 function go(i){I=Math.max(0,Math.min(slides.length-1,i));
+  if(dirty&&cache[M]&&slides[I]?.t==='sum'){dirty=false;slides=build(cache[M]);$('#stage').innerHTML=slides.map(slideHTML).join('')}
   document.querySelectorAll('.slide').forEach((e,k)=>{e.classList.toggle('on',k===I);e.classList.toggle('before',k<I)});
   document.querySelectorAll('.dots i').forEach((e,k)=>e.classList.toggle('on',k===I));
   $('#prev').disabled=I===0;$('#next').disabled=I>=slides.length-1}
@@ -206,7 +276,7 @@ function drawWeeks(){$('#weeks').innerHTML=weeks.map((_,k)=>`<button role="tab" 
 async function show(force){
   weeks=weeksOf(+S.year,M);if(W>=weeks.length)W=0;drawWeeks();I=0;
   slides=[{t:'msg',m:'Memuat data kalender…'}];render();
-  try{const st=await load(M,force);slides=build(st)}catch(e){slides=[{t:'msg',m:e.message}]}
+  try{const st=await load(M,force);await loadEv(force);slides=build(st)}catch(e){slides=[{t:'msg',m:e.message}]}
   render()}
 function pickWeek(k){W=k;drawWeeks();if(cache[M]){slides=build(cache[M]);I=0;render()}else show()}
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),3800)}
@@ -215,20 +285,26 @@ function menu(o){document.body.classList.toggle('open',o);$('#menu').setAttribut
 /* ---------- export ---------- */
 async function exportDeck(key){
   if(!window.PptxGenJS)return toast('Library export belum termuat. Periksa koneksi internet.');
-  if(!slides.length||slides[0].t==='msg')return toast('Belum ada data untuk diexport.');
+  if(!cache[M])return toast('Belum ada data untuk diexport.');
+  slides=build(cache[M]);
   const p=new PptxGenJS();p.layout='LAYOUT_16x9';const BG='0B1230',FG='FFFFFF',MU='A9B4D6',AC='4DA3FF';
   slides.forEach(s=>{const sl=p.addSlide();sl.background={color:BG};
     if(s.t==='cover'){sl.addText(s.h,{x:.7,y:1.3,w:8.6,h:1.5,fontSize:64,bold:true,color:FG});
       sl.addText(s.sub,{x:.7,y:2.8,w:8.6,h:.6,fontSize:24,color:MU});
       sl.addText([{text:S.name,options:{bold:true,fontSize:22,color:FG,breakLine:true}},{text:S.title,options:{fontSize:16,color:MU}}],{x:.7,y:4.3,w:8.6,h:.9})}
-    if(s.t==='day'){sl.addText(s.day,{x:.6,y:.5,w:8.8,h:.9,fontSize:44,bold:true,color:FG});
-      sl.addText(s.date,{x:.6,y:1.3,w:8.8,h:.4,fontSize:18,color:MU});
-      sl.addText(s.sum,{x:.6,y:1.75,w:8.8,h:.4,fontSize:16,color:AC});
-      const fs=s.items.length>8?13:s.items.length>5?16:20;
-      sl.addText(s.items.length?s.items.map(t=>({text:t,options:{bullet:true,breakLine:true}})):[{text:'Belum ada aktivitas di kalender',options:{italic:true}}],{x:.6,y:2.3,w:8.8,h:2.9,fontSize:fs,color:FG,valign:'top',paraSpaceAfter:6})}
-    if(s.t==='sum'){sl.addText('Ringkasan minggu ini',{x:.6,y:.5,w:8.8,h:.8,fontSize:36,bold:true,color:FG});
-      sl.addText(`${s.total} aktivitas, ${s.act} dari ${s.days} hari terisi`,{x:.6,y:1.3,w:8.8,h:.4,fontSize:18,color:AC});
-      sl.addText(s.lines.map(l=>({text:`${l[0]}: ${l[1]}`,options:{breakLine:true}})),{x:.6,y:2,w:8.8,h:3.2,fontSize:16,color:FG,valign:'top',paraSpaceAfter:8})}});
+    if(s.t==='day'){
+      sl.addText(`${s.day}, ${s.date}`,{x:.5,y:.3,w:9,h:.6,fontSize:30,bold:true,color:FG});
+      sl.addText(`${s.bulan} | Week ${s.week} | Toko: ${s.tokos.join(', ')||'-'}${s.pages>1?` | Bagian ${s.page}/${s.pages}`:''}`,{x:.5,y:.9,w:9,h:.35,fontSize:13,color:MU});
+      const hd=['Kategori','Detail Aktivitas','Catatan / Kendala','Action Plan'].map(t=>({text:t,options:{bold:true,color:AC,fill:{color:'16204A'}}}));
+      const rows=s.items.length?s.items.map(i=>[i.cat,i.text,i.n||'-',i.a||'-'].map(t=>({text:t,options:{color:FG}}))):[[{text:'Belum ada aktivitas',options:{color:MU,colspan:4}}]];
+      sl.addTable([hd,...rows],{x:.5,y:1.4,w:6.2,colW:[1.1,2.2,1.5,1.4],fontSize:11,border:{type:'solid',pt:.5,color:'33406E'},valign:'top'});
+      [...s.items.flatMap(i=>i.ph||[]),...s.extra].slice(0,6).forEach((src,n)=>{
+        const o={x:6.95+(n%2)*1.5,y:1.4+Math.floor(n/2)*1.25,w:1.4,h:1.15,sizing:{type:'cover',w:1.4,h:1.15}};
+        if(src.startsWith('data:'))o.data=src.slice(5);else o.path=src;try{sl.addImage(o)}catch(e){}})}
+    if(s.t==='sum'){sl.addText(`Summary Week ${W+1}`,{x:.6,y:.4,w:8.8,h:.8,fontSize:36,bold:true,color:FG});
+      sl.addText(`${s.total} aktivitas | ${s.act}/${s.days} hari terisi | ${s.tokos.length} toko | ${s.foto} foto`,{x:.6,y:1.2,w:8.8,h:.4,fontSize:16,color:AC});
+      sl.addText(s.text,{x:.6,y:1.8,w:8.8,h:1.4,fontSize:16,color:FG,valign:'top'});
+      sl.addText(s.lines.map(l=>({text:`${l[0]}: ${l[1]}`,options:{breakLine:true}})),{x:.6,y:3.3,w:8.8,h:2,fontSize:13,color:MU,valign:'top',paraSpaceAfter:4})}});
   await p.writeFile({fileName:`Week-${W+1}-${MN[M]}-${S.year}.pptx`});
   toast(key?'Keynote membuka file .pptx. Buka di Keynote, lalu File > Simpan untuk jadi .key.':'File .pptx berhasil dibuat.')}
 
@@ -236,7 +312,7 @@ async function exportDeck(key){
 function init(){
   $('#month').innerHTML=MI.map((m,k)=>`<option value="${k}">${m}</option>`).join('');$('#month').value=M;
   const set=(id,k)=>{const e=$(id);e.value=S[k];e.addEventListener('input',()=>{S[k]=e.value;save();$('#who').textContent=`${S.name}, ${S.title}`;if(k==='name'||k==='title')render()})};
-  set('#pName','name');set('#pTitle','title');set('#pSheet','sheet');set('#pYear','year');set('#pTab','tab');
+  set('#pName','name');set('#pTitle','title');set('#pSheet','sheet');set('#pYear','year');set('#pTab','tab');set('#pScript','script');
   $('#who').textContent=`${S.name}, ${S.title}`;
   document.querySelectorAll('#theme button').forEach(b=>b.onclick=()=>{S.theme=b.dataset.v;save();applyTheme()});
   $('#menu').onclick=()=>menu(!document.body.classList.contains('open'));$('#scrim').onclick=()=>menu(false);
@@ -244,16 +320,19 @@ function init(){
   $('#weeks').onclick=e=>{const b=e.target.closest('button');if(b)pickWeek(+b.dataset.k)};
   $('#prev').onclick=()=>go(I-1);$('#next').onclick=()=>go(I+1);
   $('#fs').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();
-  $('#reload').onclick=()=>{cache={};menu(false);show(true)};
+  $('#reload').onclick=()=>{cache={};evFor=null;menu(false);show(true)};
   $('#exPptx').onclick=()=>exportDeck(false);$('#exKey').onclick=()=>exportDeck(true);
   $('#csvIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;cache[M]={events:extract(csv(await f.text())),tab:'csv'};menu(false);slides=build(cache[M]);I=0;render();e.target.value=''};
-  addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;
+  addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||e.target.isContentEditable)return;
     if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(I+1)}
     else if(e.key==='ArrowLeft'||e.key==='PageUp')go(I-1);
     else if(e.key==='Escape')menu(false);else if(e.key==='f')$('#fs').click()});
   let x0=null;const st=$('#stage');
   st.addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
   st.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)go(I+(dx<0?1:-1));x0=null});
+  $('#stage').addEventListener('focusout',e=>{const el=e.target.closest('[data-k]');if(!el)return;const k=el.dataset.k;(EDIT[k]=EDIT[k]||{})[el.dataset.f]=el.textContent.trim();dirty=true;try{localStorage.setItem('wp-edits',JSON.stringify(EDIT))}catch(x){}});
+  $('#stage').addEventListener('click',e=>{if(e.target.classList.contains('pi')){$('#lb img').src=e.target.src;$('#lb').classList.add('on')}});
+  $('#lb').onclick=()=>$('#lb').classList.remove('on');
   applyTheme();
   weeks=weeksOf(+S.year,M);const t=now.getDate();W=Math.max(0,weeks.findIndex(w=>w.includes(t)||w[0]>t));if(W<0)W=0;
   show()}
