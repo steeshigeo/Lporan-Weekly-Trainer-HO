@@ -1,1163 +1,263 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Aktivitas Weekly Trainer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root {
-      /* Dark Theme (Default Base) */
-      --bg-gradient: radial-gradient(circle at 15% 15%, #1e1b4b 0%, #0f172a 50%, #020617 100%);
-      --glass-bg: rgba(30, 41, 59, 0.65);
-      --glass-bg-hover: rgba(51, 65, 85, 0.75);
-      --glass-border: rgba(255, 255, 255, 0.12);
-      --glass-glow: rgba(56, 189, 248, 0.25);
-      --accent-cyan: #38bdf8;
-      --accent-violet: #a855f7;
-      --accent-indigo: #6366f1;
-      --accent-emerald: #10b981;
-      --accent-amber: #f59e0b;
-      --accent-rose: #f43f5e;
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
-      --sidebar-width-expanded: 290px;
-      --sidebar-width-collapsed: 72px;
-      --card-inner-bg: rgba(15, 23, 42, 0.55);
-      --table-header-bg: rgba(15, 23, 42, 0.75);
-    }
-
-    /* Light Theme Overrides when active */
-    [data-theme="light"] {
-      --bg-gradient: radial-gradient(circle at 15% 15%, #e0f2fe 0%, #f1f5f9 50%, #e2e8f0 100%);
-      --glass-bg: rgba(255, 255, 255, 0.75);
-      --glass-bg-hover: rgba(241, 245, 249, 0.9);
-      --glass-border: rgba(15, 23, 42, 0.12);
-      --glass-glow: rgba(2, 132, 199, 0.2);
-      --accent-cyan: #0284c7;
-      --accent-violet: #7c3aed;
-      --accent-indigo: #4f46e5;
-      --accent-emerald: #059669;
-      --accent-amber: #d97706;
-      --accent-rose: #e11d48;
-      --text-main: #0f172a;
-      --text-sub: #475569;
-      --card-inner-bg: rgba(255, 255, 255, 0.65);
-      --table-header-bg: rgba(226, 232, 240, 0.85);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      overflow-x: hidden;
-      transition: background 0.4s ease, color 0.4s ease;
-    }
-
-    .app-container {
-      display: flex;
-      width: 100vw;
-      min-height: 100vh;
-      position: relative;
-    }
-
-    /* SIDEBAR WITH SMOOTH COLLAPSE / EXPAND ANIMATION */
-    .sidebar {
-      width: var(--sidebar-width-collapsed);
-      background: var(--glass-bg);
-      backdrop-filter: blur(28px) saturate(190%);
-      -webkit-backdrop-filter: blur(28px) saturate(190%);
-      border-right: 1px solid var(--glass-border);
-      padding: 20px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      position: fixed;
-      height: 100vh;
-      z-index: 1000;
-      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
-      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      overflow-x: hidden;
-      white-space: nowrap;
-    }
-
-    .sidebar.expanded {
-      width: var(--sidebar-width-expanded);
-      padding: 24px 20px;
-    }
-
-    /* Sidebar Header & Hamburger Trigger */
-    .sidebar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-    }
-
-    .burger-btn {
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 5px;
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      transition: background 0.2s;
-      flex-shrink: 0;
-    }
-
-    .burger-btn:hover {
-      background: rgba(255, 255, 255, 0.12);
-    }
-
-    .burger-line {
-      width: 20px;
-      height: 2.5px;
-      background-color: var(--accent-cyan);
-      border-radius: 4px;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-
-    .sidebar.expanded .burger-btn .burger-line:nth-child(1) {
-      transform: translateY(7.5px) rotate(45deg);
-    }
-    .sidebar.expanded .burger-btn .burger-line:nth-child(2) {
-      opacity: 0;
-    }
-    .sidebar.expanded .burger-btn .burger-line:nth-child(3) {
-      transform: translateY(-7.5px) rotate(-45deg);
-    }
-
-    .brand-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 18px;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.5px;
-      opacity: 0;
-      transition: opacity 0.25s ease;
-      pointer-events: none;
-    }
-
-    .sidebar.expanded .brand-title {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .sidebar-section {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      width: 100%;
-    }
-
-    .sidebar-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: var(--accent-cyan);
-      font-weight: 700;
-      padding-left: 4px;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-
-    .sidebar.expanded .sidebar-label {
-      opacity: 1;
-    }
-
-    /* Week Nav Buttons in Sidebar */
-    .week-nav-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      width: 100%;
-    }
-
-    .week-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      padding: 10px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .sidebar.expanded .week-btn {
-      justify-content: space-between;
-      padding: 10px 14px;
-    }
-
-    .week-btn:hover {
-      background: var(--glass-bg-hover);
-      border-color: var(--accent-cyan);
-    }
-
-    .week-btn.active {
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(168, 85, 247, 0.25));
-      border: 1px solid var(--accent-cyan);
-      box-shadow: 0 0 12px var(--glass-glow);
-    }
-
-    .week-text {
-      display: none;
-    }
-
-    .sidebar.expanded .week-text {
-      display: inline;
-    }
-
-    .week-badge {
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.15);
-      font-weight: 700;
-    }
-
-    /* Preferences Box */
-    .pref-box {
-      background: var(--card-inner-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      width: 100%;
-    }
-
-    .status-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--text-sub);
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent-amber);
-      flex-shrink: 0;
-    }
-
-    .status-dot.online {
-      background: var(--accent-emerald);
-      box-shadow: 0 0 8px var(--accent-emerald);
-    }
-
-    .btn-liquid {
-      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
-      color: #fff;
-      border: none;
-      padding: 9px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-      text-decoration: none;
-    }
-
-    .btn-liquid:hover {
-      opacity: 0.92;
-      transform: translateY(-1px);
-    }
-
-    .btn-glass-secondary {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-main);
-      border: 1px solid var(--glass-border);
-      padding: 8px 12px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      text-decoration: none;
-      transition: all 0.2s ease;
-    }
-
-    .btn-glass-secondary:hover {
-      background: rgba(255, 255, 255, 0.16);
-    }
-
-    /* Appearance Toggle Button */
-    .appearance-toggle {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      padding: 8px 12px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-      transition: all 0.2s ease;
-    }
-
-    .appearance-toggle:hover {
-      background: rgba(255, 255, 255, 0.16);
-    }
-
-    /* MAIN CONTENT */
-    .main-content {
-      margin-left: var(--sidebar-width-collapsed);
-      flex: 1;
-      padding: 28px 36px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      max-width: calc(100vw - var(--sidebar-width-collapsed));
-      transition: margin-left 0.35s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .sidebar.expanded ~ .main-content {
-      margin-left: var(--sidebar-width-expanded);
-      max-width: calc(100vw - var(--sidebar-width-expanded));
-    }
-
-    /* TOP FILTER BAR */
-    .top-filter-bar {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 18px;
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 1;
-      min-width: 180px;
-    }
-
-    .filter-label {
-      font-size: 12px;
-      color: var(--text-sub);
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .glass-select {
-      width: 100%;
-      background: var(--card-inner-bg);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      padding: 9px 14px;
-      border-radius: 12px;
-      font-family: inherit;
-      font-size: 12.5px;
-      outline: none;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .glass-select:focus {
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 10px var(--glass-glow);
-    }
-
-    /* SLIDE CANVAS */
-    .slide-deck {
-      width: 100%;
-      position: relative;
-    }
-
-    .glass-slide {
-      display: none;
-      background: var(--glass-bg);
-      backdrop-filter: blur(30px) saturate(190%);
-      -webkit-backdrop-filter: blur(30px) saturate(190%);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 36px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-      min-height: 520px;
-      animation: glassFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    .glass-slide.active {
-      display: block;
-    }
-
-    @keyframes glassFade {
-      from { opacity: 0; transform: scale(0.98) translateY(8px); }
-      to { opacity: 1; transform: scale(1) translateY(0); }
-    }
-
-    .slide-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      border-bottom: 1px solid var(--glass-border);
-      padding-bottom: 14px;
-    }
-
-    .slide-title {
-      font-size: 22px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      letter-spacing: -0.3px;
-    }
-
-    .liquid-badge {
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      color: var(--accent-cyan);
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 20px;
-      letter-spacing: 0.5px;
-    }
-
-    /* GRIDS & CARDS */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-
-    .glass-card {
-      background: var(--card-inner-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 18px;
-      padding: 20px;
-      transition: all 0.25s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .glass-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
-      opacity: 0.3;
-    }
-
-    .card-label {
-      font-size: 12px;
-      color: var(--text-sub);
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .card-value {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 30px;
-      font-weight: 700;
-      color: var(--accent-cyan);
-      letter-spacing: -0.5px;
-    }
-
-    .card-subtext {
-      font-size: 11px;
-      color: var(--accent-emerald);
-      margin-top: 6px;
-    }
-
-    /* TABLE */
-    .table-container {
-      overflow-x: auto;
-      border-radius: 16px;
-      border: 1px solid var(--glass-border);
-      background: var(--card-inner-bg);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    th, td {
-      padding: 12px 14px;
-      font-size: 12.5px;
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    th {
-      background: var(--table-header-bg);
-      color: var(--text-sub);
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 10.5px;
-      letter-spacing: 0.8px;
-    }
-
-    tr:hover {
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    .badge-cat {
-      background: rgba(168, 85, 247, 0.15);
-      border: 1px solid rgba(168, 85, 247, 0.3);
-      color: var(--accent-violet);
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      display: inline-block;
-    }
-
-    .evidence-link-btn {
-      font-size: 11px;
-      color: var(--accent-cyan);
-      text-decoration: underline;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    /* DECK NAV FOOTER */
-    .deck-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 12px;
-    }
-
-    .nav-btn {
-      background: var(--glass-bg);
-      backdrop-filter: blur(15px);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      padding: 9px 20px;
-      border-radius: 14px;
-      font-weight: 600;
-      font-size: 12.5px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .nav-btn:hover {
-      background: var(--glass-bg-hover);
-      transform: translateY(-1px);
-    }
-
-    .slide-counter {
-      font-size: 13px;
-      color: var(--text-sub);
-      font-weight: 600;
-    }
-
-    .bullet-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .bullet-list li {
-      position: relative;
-      padding-left: 20px;
-      font-size: 13px;
-      line-height: 1.5;
-      color: var(--text-main);
-    }
-
-    .bullet-list li::before {
-      content: "✦";
-      color: var(--accent-cyan);
-      position: absolute;
-      left: 0;
-      font-size: 11px;
-      top: 1px;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Weekly Activity Presentation</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+<style>
+:root{--bg1:#dce8ff;--bg2:#ffe2f0;--bg3:#d6f8e8;--fg:#0b1226;--fg2:rgba(11,18,38,.6);--g:rgba(255,255,255,.5);--gb:rgba(255,255,255,.75);--acc:#0a84ff;--chip:rgba(255,255,255,.55);--sh:rgba(30,50,100,.16);color-scheme:light}
+[data-theme=dark]{--bg1:#0a1030;--bg2:#2b1148;--bg3:#04303a;--fg:#f5f7ff;--fg2:rgba(245,247,255,.62);--g:rgba(32,36,62,.45);--gb:rgba(255,255,255,.18);--acc:#4da3ff;--chip:rgba(255,255,255,.1);--sh:rgba(0,0,0,.4);color-scheme:dark}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,sans-serif;color:var(--fg);background:var(--bg1);overflow:hidden;transition:background .4s,color .4s}
+body::before{content:"";position:fixed;inset:-10%;z-index:-1;background:radial-gradient(40% 40% at 15% 20%,var(--bg2),transparent 70%),radial-gradient(45% 45% at 85% 25%,var(--bg3),transparent 70%),radial-gradient(50% 50% at 50% 95%,color-mix(in srgb,var(--acc) 35%,transparent),transparent 70%)}
+.glass{background:var(--g);backdrop-filter:blur(30px) saturate(190%);-webkit-backdrop-filter:blur(30px) saturate(190%);border:1px solid var(--gb);box-shadow:inset 0 1.5px 0 var(--gb),inset 0 -1px 0 rgba(255,255,255,.06),0 14px 44px var(--sh)}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.app{height:100dvh;display:grid;grid-template-rows:auto 1fr auto;gap:14px;padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom)) 74px}
+/* menu button */
+#menu{position:fixed;top:max(14px,env(safe-area-inset-top));left:14px;width:48px;height:48px;border-radius:50%;z-index:30;display:grid;place-items:center;transition:transform .3s}
+#menu:active{transform:scale(.92)}
+#menu i{position:absolute;width:20px;height:2.5px;border-radius:2px;background:var(--fg);transition:transform .45s cubic-bezier(.7,0,.2,1),opacity .25s}
+#menu i:nth-child(1){transform:translateY(-6.5px)}#menu i:nth-child(3){transform:translateY(6.5px)}
+body.open #menu i:nth-child(1){transform:rotate(45deg)}body.open #menu i:nth-child(2){opacity:0;transform:scaleX(0)}body.open #menu i:nth-child(3){transform:rotate(-45deg)}
+/* sidebar */
+#scrim{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .4s}
+body.open #scrim{opacity:1;pointer-events:auto}
+#side{position:fixed;top:10px;left:10px;bottom:10px;width:min(360px,calc(100vw - 20px));z-index:25;border-radius:34px;padding:76px 20px 22px;overflow-y:auto;transform:translateX(calc(-100% - 20px)) scale(.96);opacity:0;transform-origin:left top;transition:transform .55s cubic-bezier(.2,.9,.25,1),opacity .35s;visibility:hidden}
+body.open #side{transform:none;opacity:1;visibility:visible}
+#side h2{font-size:13px;font-weight:600;color:var(--fg2);margin:20px 4px 8px}
+#side h2:first-of-type{margin-top:0}
+.grp{border-radius:20px;background:var(--chip);padding:4px 14px}
+.row{display:grid;gap:4px;padding:10px 0;border-bottom:1px solid var(--gb)}.row:last-child{border:0}
+.row label{font-size:12px;color:var(--fg2)}
+.row input{background:none;border:0;outline:0;font-size:15px;width:100%;padding:2px 0}
+.seg{display:flex;padding:3px;border-radius:14px;background:var(--chip);gap:2px}
+.seg button{flex:1;padding:8px 4px;border-radius:11px;font-size:14px;transition:background .25s,box-shadow .25s}
+.seg button.on{background:var(--gb);box-shadow:0 2px 8px var(--sh);font-weight:600}
+.btn{display:block;width:100%;padding:13px;border-radius:16px;background:var(--chip);font-weight:600;font-size:15px;margin-top:8px;text-align:center;transition:transform .2s}
+.btn:active{transform:scale(.97)}.btn.pri{background:var(--acc);color:#fff}
+small.n{display:block;font-size:12px;color:var(--fg2);margin:6px 6px 0;line-height:1.4}
+/* top bar */
+.top{display:flex;align-items:center;gap:10px;min-width:0}
+.pill{border-radius:999px;padding:5px;display:flex;gap:2px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.pill::-webkit-scrollbar{display:none}
+.pill button,.pill select{padding:9px 16px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap;transition:background .3s,color .3s,box-shadow .3s}
+.pill select{appearance:none;background:none;border:0;font-weight:600;padding-right:14px}
+.pill button.on{background:var(--acc);color:#fff;box-shadow:0 4px 14px color-mix(in srgb,var(--acc) 45%,transparent)}
+.ttl{margin-left:auto;text-align:right;font-size:13px;color:var(--fg2);white-space:nowrap}
+/* stage */
+.wrap{display:grid;place-items:center;min-height:0}
+.stage{container-type:size;aspect-ratio:16/9;width:min(100%,calc((100dvh - 190px)*16/9));border-radius:clamp(22px,3.4cqw,40px);position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;padding:5cqw 6cqw;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateX(5cqw) scale(.985);transition:opacity .55s,transform .65s cubic-bezier(.2,.9,.25,1)}
+.slide.on{opacity:1;transform:none;pointer-events:auto}.slide.before{transform:translateX(-5cqw) scale(.985)}
+.cover{justify-content:center}
+.cover h1{font-size:11cqw;line-height:1;font-weight:700;letter-spacing:-.035em}
+.cover p{font-size:2.8cqw;color:var(--fg2);margin-top:1.6cqw}
+.who{margin-top:auto;font-size:2.2cqw}.who b{display:block;font-size:2.8cqw}.who span{color:var(--fg2)}
+.day{display:grid;grid-template-columns:34% 1fr;gap:4cqw}
+.day .l{display:flex;flex-direction:column;justify-content:center}
+.day h2{font-size:6.2cqw;font-weight:700;letter-spacing:-.03em;line-height:1.05}
+.day .d{font-size:2.3cqw;color:var(--fg2);margin-top:1cqw}
+.day .s{font-size:1.9cqw;margin-top:2.4cqw;line-height:1.4}
+.items{display:flex;flex-direction:column;gap:1.1cqw;justify-content:center;overflow:auto;padding:.5cqw 0;scrollbar-width:none}
+.it{background:var(--chip);border:1px solid var(--gb);border-radius:2cqw;padding:1.4cqw 2cqw;font-size:2.3cqw;line-height:1.3;box-shadow:inset 0 1px 0 var(--gb)}
+.items.many .it{font-size:1.8cqw;padding:1cqw 1.6cqw}
+.empty{color:var(--fg2);font-size:2.4cqw;text-align:center}
+.sum h2{font-size:4.4cqw;font-weight:700;letter-spacing:-.02em}
+.stats{display:flex;gap:2cqw;margin:2cqw 0}
+.stats div{background:var(--chip);border:1px solid var(--gb);border-radius:2cqw;padding:1.4cqw 2.4cqw;font-size:1.8cqw;color:var(--fg2)}
+.stats b{display:block;font-size:4cqw;color:var(--fg)}
+.sl{display:grid;gap:1cqw;font-size:1.9cqw;line-height:1.35;overflow:auto}
+.sl p b{display:inline-block;width:11cqw}
+.msg{margin:auto;text-align:center;font-size:2.4cqw;color:var(--fg2);max-width:70cqw;line-height:1.5}
+/* controls */
+.ctl{justify-self:center;display:flex;align-items:center;gap:6px;padding:6px;border-radius:999px}
+.ctl button{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:20px;transition:background .2s,transform .2s}
+.ctl button:active{transform:scale(.88)}.ctl button:hover{background:var(--chip)}.ctl button:disabled{opacity:.3}
+.dots{display:flex;gap:7px;padding:0 10px}.dots i{width:8px;height:8px;border-radius:99px;background:var(--fg2);opacity:.4;transition:all .4s cubic-bezier(.2,.9,.25,1)}.dots i.on{width:24px;opacity:1;background:var(--acc)}
+#toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);padding:12px 20px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:.4s;z-index:40;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media(max-width:640px){.ttl{display:none}.app{padding-left:14px;padding-top:74px}.top{overflow:hidden}.day{grid-template-columns:1fr;gap:1.5cqw}.day h2{font-size:7cqw}}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01s!important}}
+</style>
 </head>
 <body>
+<button id="menu" class="glass" aria-label="Buka menu" aria-expanded="false"><i></i><i></i><i></i></button>
+<div id="scrim"></div>
 
-  <div class="app-container">
-
-    <!-- SIDEBAR WITH BURGER TRIGGER (DEFAULT COLLAPSED) -->
-    <div class="sidebar" id="appSidebar">
-      
-      <div class="sidebar-header">
-        <button class="burger-btn" onclick="toggleSidebar()" title="Toggle Navigation Sidebar">
-          <div class="burger-line"></div>
-          <div class="burger-line"></div>
-          <div class="burger-line"></div>
-        </button>
-        <div class="brand-title">DIGIMAP TRAINER</div>
-      </div>
-
-      <!-- CALENDAR MINGGUAN -->
-      <div class="sidebar-section">
-        <div class="sidebar-label">📅 Pilih Minggu</div>
-        <div class="week-nav-list" id="weekNavList">
-          <button class="week-btn active" onclick="selectWeek('ALL')">
-            <span>📅</span>
-            <span class="week-text">Semua Week</span>
-            <span class="week-badge" id="badgeAll">All</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- PREFERENCES SECTION -->
-      <div class="sidebar-section" style="margin-top: auto;">
-        <div class="sidebar-label">⚙️ Preferences</div>
-        <div class="pref-box">
-          
-          <div class="status-pill">
-            <div class="status-dot" id="syncDot"></div>
-            <span id="syncStatus">Menghubungkan...</span>
-          </div>
-
-          <button class="btn-liquid" onclick="fetchDataFromSheet()">
-            🔄 Sync Live Data
-          </button>
-
-          <a href="https://docs.google.com/spreadsheets/d/15xMRwQkcodHVadxxNxkHofPr0_un92jsCH03QFVqFGM/edit?usp=sharing" target="_blank" class="btn-glass-secondary">
-            📝 Buka Google Sheet
-          </a>
-
-          <!-- APPEARANCE TOGGLE (DEFAULT DEVICE APPEARANCE) -->
-          <button class="appearance-toggle" onclick="cycleAppearance()" id="appearanceBtn">
-            <span>🌗 Mode: <strong id="appearanceModeLabel">Device</strong></span>
-          </button>
-
-        </div>
-      </div>
-
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
-
-      <!-- TOP FILTER BAR -->
-      <div class="top-filter-bar">
-        
-        <!-- Filter 1: Tanggal & Hari -->
-        <div class="filter-group">
-          <span class="filter-label">📅 Tanggal:</span>
-          <select class="glass-select" id="filterDate" onchange="renderAllSlides()">
-            <option value="ALL">Semua Tanggal & Hari</option>
-          </select>
-        </div>
-
-        <!-- Filter 2: Toko -->
-        <div class="filter-group">
-          <span class="filter-label">🏪 Toko:</span>
-          <select class="glass-select" id="filterStore" onchange="renderAllSlides()">
-            <option value="ALL">Semua Store</option>
-          </select>
-        </div>
-
-        <!-- Filter 3: Kategori Aktivitas -->
-        <div class="filter-group">
-          <span class="filter-label">🎯 Kategori:</span>
-          <select class="glass-select" id="filterCategory" onchange="renderAllSlides()">
-            <option value="ALL">Semua Kategori Aktivitas</option>
-          </select>
-        </div>
-
-      </div>
-
-      <!-- SLIDE DECK CANVAS -->
-      <div class="slide-deck">
-
-        <!-- SLIDE 1: COVER -->
-        <div class="glass-slide active" id="slide1">
-          <div style="text-align: center; padding: 50px 20px;">
-            <span class="liquid-badge" style="margin-bottom: 20px; display: inline-block;">WEEKLY EXECUTIVE REPORT</span>
-            <h1 style="font-size: 38px; font-weight: 800; margin-bottom: 12px; background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-violet) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px;">
-              Laporan Aktivitas Weekly Trainer
-            </h1>
-            <p style="color: var(--text-sub); font-size: 16px; margin-bottom: 36px;" id="coverSubtitle">
-              Report Real-time Activity
-            </p>
-
-            <div style="display: flex; justify-content: center; gap: 28px; font-size: 14px; color: var(--text-sub); flex-wrap: wrap;">
-              <div>📍 <strong id="coverStores">Multi-Store Cabang</strong></div>
-              <div>📅 <span id="coverPeriod">Kalender Berjalan</span></div>
-              <div style="color: var(--accent-cyan); font-weight: 700;">
-                👤 Trainer Executive: <span id="trainerNameDisplay">Frandy Putra</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SLIDE 2: AUTO GENERATED KPI METRICS -->
-        <div class="glass-slide" id="slide2">
-          <div class="slide-header">
-            <div class="slide-title">📊 Auto-Generated Metrics Kategori Aktivitas</div>
-            <span class="liquid-badge">Auto Computed</span>
-          </div>
-
-          <div class="grid-4" id="kpiContainer">
-            <div class="glass-card">
-              <div class="card-label">Total Aktivitas Terdata</div>
-              <div class="card-value" id="kpiTotalTasks">0</div>
-              <div class="card-subtext">Item dari Sheet</div>
-            </div>
-            <div class="glass-card">
-              <div class="card-label">Sesi Coaching & SEED</div>
-              <div class="card-value" id="kpiSeedCount">0</div>
-              <div class="card-subtext">Auto-counted</div>
-            </div>
-            <div class="glass-card">
-              <div class="card-label">Evaluasi Raport Staff (RS)</div>
-              <div class="card-value" id="kpiRsCount">0</div>
-              <div class="card-subtext">Auto-counted</div>
-            </div>
-            <div class="glass-card">
-              <div class="card-label">Demo Open Studio</div>
-              <div class="card-value" id="kpiStudioCount">0</div>
-              <div class="card-subtext">Auto-counted</div>
-            </div>
-          </div>
-
-          <div class="glass-card" style="margin-top: 20px; padding: 20px;">
-            <h3 style="font-size: 14px; margin-bottom: 14px; color: var(--accent-cyan);">Distribusi Kategori Aktivitas Mingguan</h3>
-            <div style="height: 200px; width: 100%;">
-              <canvas id="categoryChart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- SLIDE 3: RINCIAN LOG HARIAN -->
-        <div class="glass-slide" id="slide3">
-          <div class="slide-header">
-            <div class="slide-title">📅 Rincian Aktivitas Harian</div>
-            <span class="liquid-badge" id="slide3WeekBadge">Week Active</span>
-          </div>
-
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Bulan</th>
-                  <th>Tanggal</th>
-                  <th>Hari</th>
-                  <th>Toko</th>
-                  <th>Kategori Aktivitas</th>
-                  <th>Detail Task</th>
-                  <th>Hasil / Achievement</th>
-                  <th>Foto Evidence</th>
-                </tr>
-              </thead>
-              <tbody id="dailyLogTableBody">
-                <tr>
-                  <td colspan="8" style="text-align: center; color: var(--text-sub); padding: 30px;">Memuat data dari Google Sheet...</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- SLIDE 4: CATATAN & ACTION PLAN (GENERATED DARI KOLOM ACTION PLAN SHEET) -->
-        <div class="glass-slide" id="slide4">
-          <div class="slide-header">
-            <div class="slide-title">🎯 Catatan Lapangan & Action Plan</div>
-            <span class="liquid-badge">Field Notes & Action Plan</span>
-          </div>
-
-          <div class="grid-2">
-            <div class="glass-card">
-              <h3 style="font-size: 15px; margin-bottom: 14px; color: var(--accent-amber);">Catatan & Kendala Lapangan</h3>
-              <ul class="bullet-list" id="fieldNotesList">
-                <li>Memuat catatan kendala...</li>
-              </ul>
-            </div>
-
-            <div class="glass-card">
-              <h3 style="font-size: 15px; margin-bottom: 14px; color: var(--accent-emerald);">Rencana Tindak Lanjut (Action Plan)</h3>
-              <ul class="bullet-list" id="actionPlanList">
-                <li>Memuat action plan dari Google Sheet...</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- DECK NAVIGATION FOOTER -->
-      <div class="deck-nav">
-        <button class="nav-btn" onclick="prevSlide()">← Slide Sebelumnya</button>
-        <div class="slide-counter" id="slideCounter">Slide 1 dari 4</div>
-        <button class="nav-btn" onclick="nextSlide()">Slide Selanjutnya →</button>
-      </div>
-
-    </div>
-
+<aside id="side" class="glass" aria-label="Sidebar">
+  <h2>Preferences</h2>
+  <div class="grp">
+    <div class="row"><label for="pName">Nama trainer</label><input id="pName" autocomplete="off"></div>
+    <div class="row"><label for="pTitle">Jabatan</label><input id="pTitle" autocomplete="off"></div>
   </div>
+  <h2>Appearance</h2>
+  <div class="seg" id="theme"><button data-v="system">Perangkat</button><button data-v="light">Terang</button><button data-v="dark">Gelap</button></div>
+  <h2>Sumber data</h2>
+  <div class="grp">
+    <div class="row"><label for="pSheet">Link Google Sheet</label><input id="pSheet" autocomplete="off"></div>
+    <div class="row"><label for="pYear">Tahun</label><input id="pYear" type="number" min="2000" max="2100"></div>
+    <div class="row"><label for="pTab">Pola nama tab bulan</label><input id="pTab" placeholder="{Month}" autocomplete="off"></div>
+  </div>
+  <small class="n">Pola: {Month} = January, {Mon} = Jan, {MM} = 01. Jika tidak cocok, app mencoba nama umum lain otomatis. Sheet harus dibagikan "Anyone with the link".</small>
+  <button class="btn pri" id="reload">Simpan dan muat ulang data</button>
+  <label class="btn" style="cursor:pointer">Impor CSV bulan ini<input id="csvIn" type="file" accept=".csv,text/csv" hidden></label>
+  <h2>Export week ini</h2>
+  <button class="btn" id="exPptx">Export .pptx (PowerPoint)</button>
+  <button class="btn" id="exKey">Export .key (Keynote)</button>
+</aside>
 
-  <script>
-    const SPREADSHEET_ID = '15xMRwQkcodHVadxxNxkHofPr0_un92jsCH03QFVqFGM';
-    const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json`;
+<main class="app">
+  <div class="top">
+    <div class="pill glass"><select id="month" aria-label="Bulan"></select></div>
+    <div class="pill glass" id="weeks" role="tablist"></div>
+    <div class="ttl" id="who"></div>
+  </div>
+  <div class="wrap"><div class="stage glass" id="stage"></div></div>
+  <div class="ctl glass">
+    <button id="prev" aria-label="Slide sebelumnya">&#8249;</button>
+    <div class="dots" id="dots"></div>
+    <button id="next" aria-label="Slide berikutnya">&#8250;</button>
+    <button id="fs" aria-label="Layar penuh" style="font-size:16px">&#x26F6;</button>
+  </div>
+</main>
+<div id="toast" class="glass"></div>
 
-    let rawSheetData = [];
-    let trainerName = "Frandy Putra";
-    let selectedWeek = 'ALL';
-    let currentSlideIndex = 0;
-    const totalSlides = 4;
-    let chartInstance = null;
+<script>
+const $=s=>document.querySelector(s);
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MI=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const DY=['Senin','Selasa','Rabu','Kamis','Jumat'];
+const DEF={sheet:'https://docs.google.com/spreadsheets/d/1EC0f0uUNcu7JJfsGaIZygnbZcza7025r_gnlquH8LrI/edit?usp=sharing',year:new Date().getFullYear(),tab:'{Month}',name:'Frandy Putra',title:'Executive Trainer',theme:'system'};
+let S={...DEF};try{Object.assign(S,JSON.parse(localStorage.getItem('wp-settings')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('wp-settings',JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const now=new Date();let M=now.getMonth(),W=0,I=0,slides=[],cache={},weeks=[];
 
-    // Sidebar Expand / Collapse Logic
-    function toggleSidebar() {
-      const sidebar = document.getElementById('appSidebar');
-      sidebar.classList.toggle('expanded');
-    }
+/* ---------- theme ---------- */
+const mq=matchMedia('(prefers-color-scheme: dark)');
+function applyTheme(){document.documentElement.dataset.theme=S.theme==='system'?(mq.matches?'dark':'light'):S.theme;
+  document.querySelectorAll('#theme button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.theme))}
+mq.addEventListener('change',applyTheme);
 
-    // Appearance Theme Logic (Device Default / Dark / Light)
-    let currentThemeSetting = 'device'; // 'device', 'dark', 'light'
+/* ---------- data ---------- */
+function csv(t){const r=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];
+  if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}
+  else if(c=='"')q=true;else if(c==','){row.push(f);f=''}else if(c=='\n'){row.push(f);r.push(row);row=[];f=''}else if(c!='\r')f+=c}
+  row.push(f);r.push(row);return r}
+const isD=v=>/^\d{1,2}$/.test((v||'').trim())&&+v>=1&&+v<=31;
+const junk=/^(mon|tue|wed|thu|fri|sat|sun|sen|sel|rab|kam|jum|sab|min)\w*$|^[mtwfsrk]$/i;
+const isMonth=x=>MN.some(m=>m.toLowerCase()===x.trim().toLowerCase())||MI.some(m=>m.toLowerCase()===x.trim().toLowerCase());
+function extract(g){
+  const dr=g.map((row,r)=>row.filter(isD).length>=3?r:-1).filter(r=>r>=0),ev={};
+  dr.forEach((r,i)=>{const end=dr[i+1]??g.length,row=g[r];let prev=0,wrapped=false;
+    const one=i===0?row.findIndex(v=>(v||'').trim()==='1'):-1;
+    row.forEach((v,c)=>{if(!isD(v))return;const d=+v;
+      if(d<prev)wrapped=true;prev=d;
+      if(wrapped||(i===0&&one>=0&&c<one))return;
+      const notes=[];
+      for(let k=r+1;k<end;k++){const x=(g[k][c]||'').trim();if(x&&!junk.test(x)&&!isMonth(x))notes.push(...x.split(/\n+/).map(s=>s.trim()).filter(Boolean))}
+      if(notes.length)(ev[d]=ev[d]||[]).push(...notes)})});
+  return ev}
+const sid=()=>(S.sheet.match(/\/d\/([\w-]+)/)||S.sheet.match(/^([\w-]{20,})$/)||[])[1];
+function cands(m){const f=MN[m],sh=f.slice(0,3),mm=String(m+1).padStart(2,'0');
+  const p=(S.tab||'{Month}').replace('{Month}',f).replace('{MONTH}',f.toUpperCase()).replace('{Mon}',sh).replace('{MM}',mm);
+  return [...new Set([p,f,f.toUpperCase(),sh,sh.toUpperCase(),MI[m],`${f} ${S.year}`])]}
+async function load(m,force){
+  if(cache[m]&&!force)return cache[m];
+  const id=sid();if(!id)throw new Error('Link Google Sheet tidak valid. Periksa di Preferences.');
+  for(const tab of cands(m)){
+    try{const r=await fetch(`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`);
+      if(!r.ok)continue;const t=await r.text();if(/^\s*<(!doctype|html)/i.test(t))continue;
+      const g=csv(t);if(new Set(g.flat().filter(x=>MN.some(n=>n.toUpperCase()===x.trim().toUpperCase()))).size>=3)continue; // tab Year, bukan tab bulan
+      return cache[m]={events:extract(g),tab}}catch(e){}}
+  throw new Error(`Tab bulan ${MI[m]} tidak terbaca. Pastikan sheet dibagikan "Anyone with the link", atau atur pola nama tab di Preferences, atau impor CSV.`)}
 
-    function applyTheme() {
-      const root = document.documentElement;
-      const label = document.getElementById('appearanceModeLabel');
+/* ---------- weeks & slides ---------- */
+function weeksOf(y,m){const last=new Date(y,m+1,0).getDate(),w=[];let cur=null;
+  for(let d=1;d<=last;d++){const wd=(new Date(y,m,d).getDay()+6)%7;if(wd>4)continue;if(wd===0||!cur){cur=[];w.push(cur)}cur.push(d)}return w}
+function build(state){
+  const wk=weeks[W]||[],ev=state.events||{},Y=+S.year,out=[];
+  out.push({t:'cover',h:`Week ${W+1}`,sub:`${wk[0]} – ${wk.at(-1)} ${MI[M]} ${Y}`});
+  let total=0,act=0;const lines=[];
+  wk.forEach(d=>{const wd=(new Date(Y,M,d).getDay()+6)%7,items=ev[d]||[];total+=items.length;if(items.length)act++;
+    const sum=items.length?`${items.length} aktivitas, fokus pada ${items[0]}`:'Belum ada aktivitas tercatat';
+    lines.push([DY[wd],sum]);out.push({t:'day',day:DY[wd],date:`${d} ${MI[M]} ${Y}`,items,sum})});
+  out.push({t:'sum',total,act,days:wk.length,lines});return out}
+function slideHTML(s){
+  if(s.t==='cover')return `<section class="slide cover"><h1>${esc(s.h)}</h1><p>${esc(s.sub)}</p><div class="who"><b>${esc(S.name)}</b><span>${esc(S.title)}</span></div></section>`;
+  if(s.t==='day')return `<section class="slide day"><div class="l"><h2>${s.day}</h2><div class="d">${s.date}</div><div class="s">${esc(s.sum)}</div></div><div class="items ${s.items.length>6?'many':''}">${s.items.length?s.items.map(i=>`<div class="it">${esc(i)}</div>`).join(''):'<div class="empty">Belum ada aktivitas di kalender</div>'}</div></section>`;
+  if(s.t==='sum')return `<section class="slide sum"><h2>Ringkasan minggu ini</h2><div class="stats"><div><b>${s.total}</b>aktivitas</div><div><b>${s.act}/${s.days}</b>hari terisi</div></div><div class="sl">${s.lines.map(l=>`<p><b>${l[0]}</b>${esc(l[1])}</p>`).join('')}</div></section>`;
+  return `<section class="slide"><div class="msg">${esc(s.m)}</div></section>`}
+function render(){
+  $('#stage').innerHTML=slides.map(slideHTML).join('');
+  $('#dots').innerHTML=slides.map(()=>'<i></i>').join('');
+  I=Math.min(I,slides.length-1);go(I)}
+function go(i){I=Math.max(0,Math.min(slides.length-1,i));
+  document.querySelectorAll('.slide').forEach((e,k)=>{e.classList.toggle('on',k===I);e.classList.toggle('before',k<I)});
+  document.querySelectorAll('.dots i').forEach((e,k)=>e.classList.toggle('on',k===I));
+  $('#prev').disabled=I===0;$('#next').disabled=I>=slides.length-1}
 
-      if (currentThemeSetting === 'device') {
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-        label.innerText = 'Device';
-      } else if (currentThemeSetting === 'dark') {
-        root.setAttribute('data-theme', 'dark');
-        label.innerText = 'Dark';
-      } else {
-        root.setAttribute('data-theme', 'light');
-        label.innerText = 'Light';
-      }
-    }
+/* ---------- navigation ---------- */
+function drawWeeks(){$('#weeks').innerHTML=weeks.map((_,k)=>`<button role="tab" class="${k===W?'on':''}" data-k="${k}">Week ${k+1}</button>`).join('')}
+async function show(force){
+  weeks=weeksOf(+S.year,M);if(W>=weeks.length)W=0;drawWeeks();I=0;
+  slides=[{t:'msg',m:'Memuat data kalender…'}];render();
+  try{const st=await load(M,force);slides=build(st)}catch(e){slides=[{t:'msg',m:e.message}]}
+  render()}
+function pickWeek(k){W=k;drawWeeks();if(cache[M]){slides=build(cache[M]);I=0;render()}else show()}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),3800)}
+function menu(o){document.body.classList.toggle('open',o);$('#menu').setAttribute('aria-expanded',o);$('#menu').setAttribute('aria-label',o?'Tutup menu':'Buka menu')}
 
-    function cycleAppearance() {
-      if (currentThemeSetting === 'device') {
-        currentThemeSetting = 'dark';
-      } else if (currentThemeSetting === 'dark') {
-        currentThemeSetting = 'light';
-      } else {
-        currentThemeSetting = 'device';
-      }
-      applyTheme();
-    }
+/* ---------- export ---------- */
+async function exportDeck(key){
+  if(!window.PptxGenJS)return toast('Library export belum termuat. Periksa koneksi internet.');
+  if(!slides.length||slides[0].t==='msg')return toast('Belum ada data untuk diexport.');
+  const p=new PptxGenJS();p.layout='LAYOUT_16x9';const BG='0B1230',FG='FFFFFF',MU='A9B4D6',AC='4DA3FF';
+  slides.forEach(s=>{const sl=p.addSlide();sl.background={color:BG};
+    if(s.t==='cover'){sl.addText(s.h,{x:.7,y:1.3,w:8.6,h:1.5,fontSize:64,bold:true,color:FG});
+      sl.addText(s.sub,{x:.7,y:2.8,w:8.6,h:.6,fontSize:24,color:MU});
+      sl.addText([{text:S.name,options:{bold:true,fontSize:22,color:FG,breakLine:true}},{text:S.title,options:{fontSize:16,color:MU}}],{x:.7,y:4.3,w:8.6,h:.9})}
+    if(s.t==='day'){sl.addText(s.day,{x:.6,y:.5,w:8.8,h:.9,fontSize:44,bold:true,color:FG});
+      sl.addText(s.date,{x:.6,y:1.3,w:8.8,h:.4,fontSize:18,color:MU});
+      sl.addText(s.sum,{x:.6,y:1.75,w:8.8,h:.4,fontSize:16,color:AC});
+      const fs=s.items.length>8?13:s.items.length>5?16:20;
+      sl.addText(s.items.length?s.items.map(t=>({text:t,options:{bullet:true,breakLine:true}})):[{text:'Belum ada aktivitas di kalender',options:{italic:true}}],{x:.6,y:2.3,w:8.8,h:2.9,fontSize:fs,color:FG,valign:'top',paraSpaceAfter:6})}
+    if(s.t==='sum'){sl.addText('Ringkasan minggu ini',{x:.6,y:.5,w:8.8,h:.8,fontSize:36,bold:true,color:FG});
+      sl.addText(`${s.total} aktivitas, ${s.act} dari ${s.days} hari terisi`,{x:.6,y:1.3,w:8.8,h:.4,fontSize:18,color:AC});
+      sl.addText(s.lines.map(l=>({text:`${l[0]}: ${l[1]}`,options:{breakLine:true}})),{x:.6,y:2,w:8.8,h:3.2,fontSize:16,color:FG,valign:'top',paraSpaceAfter:8})}});
+  await p.writeFile({fileName:`Week-${W+1}-${MN[M]}-${S.year}.pptx`});
+  toast(key?'Keynote membuka file .pptx. Buka di Keynote, lalu File > Simpan untuk jadi .key.':'File .pptx berhasil dibuat.')}
 
-    // System theme change listener
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-      if (currentThemeSetting === 'device') {
-        applyTheme();
-      }
-    });
-
-    // Fetch live data from Google Sheet GViz API
-    async function fetchDataFromSheet() {
-      const syncDot = document.getElementById('syncDot');
-      const syncStatus = document.getElementById('syncStatus');
-      
-      syncDot.className = 'status-dot';
-      syncStatus.innerText = 'Syncing...';
-
-      try {
-        const response = await fetch(GVIZ_URL);
-        const text = await response.text();
-        
-        const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-        const json = JSON.parse(jsonString);
-        
-        const rows = json.table.rows;
-
-        // Cell B1 contains Trainer Name if structured as metadata
-        if (rows[0] && rows[0].c && rows[0].c[1] && rows[0].c[1].v) {
-          trainerName = rows[0].c[1].v;
-          document.getElementById('trainerNameDisplay').innerText = trainerName;
-        }
-
-        // Table Data starts from Row 4 (index 3)
-        // Headers: Bulan | Week | Tanggal | Hari | Toko | Kategori Aktivitas | Detail Task | Hasil | Catatan | Action Plan | Foto Evidence
-        rawSheetData = rows.slice(3).map(r => {
-          const c = r.c || [];
-          return {
-            bulan: c[0] ? String(c[0].v || '') : '',
-            week: c[1] ? String(c[1].v || '') : '',
-            tanggal: c[2] ? (c[2].f || c[2].v || '') : '',
-            hari: c[3] ? String(c[3].v || '') : '',
-            toko: c[4] ? String(c[4].v || '') : '',
-            kategori: c[5] ? String(c[5].v || '') : '',
-            detail: c[6] ? String(c[6].v || '') : '',
-            hasil: c[7] ? String(c[7].v || '') : '',
-            catatan: c[8] ? String(c[8].v || '') : '',
-            actionPlan: c[9] ? String(c[9].v || '') : '',
-            evidence: c[10] ? String(c[10].v || '') : ''
-          };
-        }).filter(item => item.week || item.hari || item.toko || item.detail);
-
-        syncDot.className = 'status-dot online';
-        syncStatus.innerText = `Terhubung Live (${rawSheetData.length} baris)`;
-
-        populateWeekNav();
-        populateTopFilters();
-        renderAllSlides();
-
-      } catch (err) {
-        console.error("GVIZ Fetch Error:", err);
-        syncDot.className = 'status-dot';
-        syncStatus.innerText = 'Gagal Sync (Cek Akses Sheet)';
-      }
-    }
-
-    function populateWeekNav() {
-      const weekNav = document.getElementById('weekNavList');
-      const weeks = [...new Set(rawSheetData.map(d => d.week).filter(Boolean))];
-
-      let html = `<button class="week-btn ${selectedWeek === 'ALL' ? 'active' : ''}" onclick="selectWeek('ALL')">
-        <span>📅</span>
-        <span class="week-text">Semua Week</span>
-        <span class="week-badge">All</span>
-      </button>`;
-
-      weeks.forEach(w => {
-        const count = rawSheetData.filter(d => d.week === w).length;
-        html += `<button class="week-btn ${selectedWeek === w ? 'active' : ''}" onclick="selectWeek('${w}')">
-          <span>📌</span>
-          <span class="week-text">${w}</span>
-          <span class="week-badge">${count}</span>
-        </button>`;
-      });
-
-      weekNav.innerHTML = html;
-      document.getElementById('badgeAll').innerText = `${rawSheetData.length}`;
-    }
-
-    function selectWeek(week) {
-      selectedWeek = week;
-      populateWeekNav();
-      populateTopFilters();
-      renderAllSlides();
-    }
-
-    function populateTopFilters() {
-      const dateSelect = document.getElementById('filterDate');
-      const storeSelect = document.getElementById('filterStore');
-      const catSelect = document.getElementById('filterCategory');
-
-      let weekFiltered = rawSheetData;
-      if (selectedWeek !== 'ALL') {
-        weekFiltered = rawSheetData.filter(d => d.week === selectedWeek);
-      }
-
-      // Populate Date + Hari Option
-      const dates = [...new Set(weekFiltered.map(d => `${d.hari}, ${d.tanggal}`).filter(d => !d.startsWith(',')))];
-      dateSelect.innerHTML = '<option value="ALL">Semua Tanggal & Hari</option>' + 
-        dates.map(d => `<option value="${d}">${d}</option>`).join('');
-
-      // Populate Store Option
-      const stores = [...new Set(weekFiltered.map(d => d.toko).filter(Boolean))];
-      storeSelect.innerHTML = '<option value="ALL">Semua Store</option>' + 
-        stores.map(s => `<option value="${s}">${s}</option>`).join('');
-
-      // Populate Category Option
-      const categories = [...new Set(weekFiltered.map(d => d.kategori).filter(Boolean))];
-      catSelect.innerHTML = '<option value="ALL">Semua Kategori Aktivitas</option>' + 
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
-    }
-
-    function getFilteredData() {
-      const selectedDate = document.getElementById('filterDate').value;
-      const selectedStore = document.getElementById('filterStore').value;
-      const selectedCat = document.getElementById('filterCategory').value;
-
-      return rawSheetData.filter(item => {
-        const matchWeek = selectedWeek === 'ALL' || item.week === selectedWeek;
-        const dateStr = `${item.hari}, ${item.tanggal}`;
-        const matchDate = selectedDate === 'ALL' || dateStr === selectedDate;
-        const matchStore = selectedStore === 'ALL' || item.toko === selectedStore;
-        const matchCat = selectedCat === 'ALL' || item.kategori === selectedCat;
-
-        return matchWeek && matchDate && matchStore && matchCat;
-      });
-    }
-
-    function renderAllSlides() {
-      const data = getFilteredData();
-
-      // Cover subtitle & stores update
-      const stores = [...new Set(data.map(d => d.toko).filter(Boolean))];
-      document.getElementById('coverStores').innerText = stores.length ? stores.join(', ') : 'Multi-Store Cabang';
-      document.getElementById('slide3WeekBadge').innerText = selectedWeek === 'ALL' ? 'Semua Week' : selectedWeek;
-
-      // Auto Generate KPI Metrics from Kategori Aktivitas column
-      document.getElementById('kpiTotalTasks').innerText = data.length;
-
-      const seedCount = data.filter(d => {
-        const cat = (d.kategori || '').toLowerCase();
-        return cat.includes('coaching') || cat.includes('seed');
-      }).length;
-
-      const rsCount = data.filter(d => {
-        const cat = (d.kategori || '').toLowerCase();
-        return cat.includes('raport') || cat.includes('rs');
-      }).length;
-
-      const studioCount = data.filter(d => {
-        const cat = (d.kategori || '').toLowerCase();
-        return cat.includes('open studio') || cat.includes('demo');
-      }).length;
-
-      document.getElementById('kpiSeedCount').innerText = seedCount;
-      document.getElementById('kpiRsCount').innerText = rsCount;
-      document.getElementById('kpiStudioCount').innerText = studioCount;
-
-      // Render Chart
-      renderChart(data);
-
-      // Render Table on Slide 3 (Bulan | Tanggal | Hari | Toko | Kategori | Detail | Hasil | Foto Evidence)
-      const tbody = document.getElementById('dailyLogTableBody');
-      if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-sub); padding: 30px;">Tidak ada data aktivitas yang cocok dengan filter.</td></tr>';
-      } else {
-        tbody.innerHTML = data.map(item => {
-          let evidenceHtml = '<span style="color:var(--text-sub); font-size:11px;">-</span>';
-          if (item.evidence) {
-            if (item.evidence.startsWith('http')) {
-              evidenceHtml = `<a href="${item.evidence}" target="_blank" class="evidence-link-btn">📷 Lihat Foto</a>`;
-            } else {
-              evidenceHtml = `<span class="evidence-link-btn" title="${item.evidence}">📷 ${item.evidence}</span>`;
-            }
-          }
-
-          return `
-            <tr>
-              <td><strong>${item.bulan || 'Oktober'}</strong></td>
-              <td><strong>${item.tanggal || '-'}</strong></td>
-              <td>${item.hari || '-'}</td>
-              <td><strong>${item.toko || '-'}</strong></td>
-              <td><span class="badge-cat">${item.kategori || 'General'}</span></td>
-              <td>${item.detail || '-'}</td>
-              <td style="color:var(--accent-emerald);">${item.hasil || '-'}</td>
-              <td>${evidenceHtml}</td>
-            </tr>
-          `;
-        }).join('');
-      }
-
-      // Render Field Notes & Action Plan (Generated strictly from actionPlan column in Google Sheet)
-      const notesList = document.getElementById('fieldNotesList');
-      const actionList = document.getElementById('actionPlanList');
-
-      const notes = data.map(d => d.catatan).filter(Boolean);
-      const actionPlans = data.map(d => d.actionPlan).filter(Boolean);
-
-      notesList.innerHTML = notes.length 
-        ? notes.map(n => `<li>${n}</li>`).join('') 
-        : '<li>Seluruh aktivitas berjalan lancar tanpa kendala.</li>';
-
-      actionList.innerHTML = actionPlans.length 
-        ? actionPlans.map(a => `<li>${a}</li>`).join('')
-        : '<li>Belum ada action plan khusus yang dicatat di Google Sheet.</li>';
-    }
-
-    function renderChart(data) {
-      const ctx = document.getElementById('categoryChart').getContext('2d');
-      const catCounts = {};
-
-      data.forEach(d => {
-        const cat = d.kategori || 'Lainnya';
-        catCounts[cat] = (catCounts[cat] || 0) + 1;
-      });
-
-      const labels = Object.keys(catCounts);
-      const counts = Object.values(catCounts);
-
-      if (chartInstance) {
-        chartInstance.destroy();
-      }
-
-      chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels.length ? labels : ['Belum ada data'],
-          datasets: [{
-            label: 'Jumlah Aktivitas',
-            data: counts.length ? counts : [0],
-            backgroundColor: ['#38bdf8', '#a855f7', '#10b981', '#f59e0b', '#f43f5e'],
-            borderRadius: 8
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            x: { ticks: { color: 'var(--text-sub)', font: { family: 'Plus Jakarta Sans' } }, grid: { display: false } },
-            y: { ticks: { color: 'var(--text-sub)', stepSize: 1, font: { family: 'Plus Jakarta Sans' } }, grid: { color: 'rgba(255, 255, 255, 0.08)' }, beginAtZero: true }
-          }
-        }
-      });
-    }
-
-    function showSlide(index) {
-      const slides = document.querySelectorAll('.glass-slide');
-      slides.forEach((s, i) => {
-        s.classList.toggle('active', i === index);
-      });
-      currentSlideIndex = index;
-      document.getElementById('slideCounter').innerText = `Slide ${index + 1} dari ${totalSlides}`;
-    }
-
-    function nextSlide() {
-      if (currentSlideIndex < totalSlides - 1) {
-        showSlide(currentSlideIndex + 1);
-      }
-    }
-
-    function prevSlide() {
-      if (currentSlideIndex > 0) {
-        showSlide(currentSlideIndex - 1);
-      }
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight' || e.key === 'Space') nextSlide();
-      if (e.key === 'ArrowLeft') prevSlide();
-    });
-
-    // Initialize Theme & Data
-    applyTheme();
-    fetchDataFromSheet();
-  </script>
+/* ---------- init ---------- */
+function init(){
+  $('#month').innerHTML=MI.map((m,k)=>`<option value="${k}">${m}</option>`).join('');$('#month').value=M;
+  const set=(id,k)=>{const e=$(id);e.value=S[k];e.addEventListener('input',()=>{S[k]=e.value;save();$('#who').textContent=`${S.name}, ${S.title}`;if(k==='name'||k==='title')render()})};
+  set('#pName','name');set('#pTitle','title');set('#pSheet','sheet');set('#pYear','year');set('#pTab','tab');
+  $('#who').textContent=`${S.name}, ${S.title}`;
+  document.querySelectorAll('#theme button').forEach(b=>b.onclick=()=>{S.theme=b.dataset.v;save();applyTheme()});
+  $('#menu').onclick=()=>menu(!document.body.classList.contains('open'));$('#scrim').onclick=()=>menu(false);
+  $('#month').onchange=e=>{M=+e.target.value;W=0;show()};
+  $('#weeks').onclick=e=>{const b=e.target.closest('button');if(b)pickWeek(+b.dataset.k)};
+  $('#prev').onclick=()=>go(I-1);$('#next').onclick=()=>go(I+1);
+  $('#fs').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();
+  $('#reload').onclick=()=>{cache={};menu(false);show(true)};
+  $('#exPptx').onclick=()=>exportDeck(false);$('#exKey').onclick=()=>exportDeck(true);
+  $('#csvIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;cache[M]={events:extract(csv(await f.text())),tab:'csv'};menu(false);slides=build(cache[M]);I=0;render();e.target.value=''};
+  addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(I+1)}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp')go(I-1);
+    else if(e.key==='Escape')menu(false);else if(e.key==='f')$('#fs').click()});
+  let x0=null;const st=$('#stage');
+  st.addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
+  st.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)go(I+(dx<0?1:-1));x0=null});
+  applyTheme();
+  weeks=weeksOf(+S.year,M);const t=now.getDate();W=Math.max(0,weeks.findIndex(w=>w.includes(t)||w[0]>t));if(W<0)W=0;
+  show()}
+init();
+</script>
 </body>
 </html>
