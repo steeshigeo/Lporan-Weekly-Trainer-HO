@@ -3,21 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Live Trainer Store - Dynamic Google Sheet Link</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <title>Weekly Executive Trainer Report - Liquid Glass iOS 26 Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg-dark: #0f172a;
-      --card-bg: #1e293b;
-      --accent-blue: #38bdf8;
-      --accent-indigo: #818cf8;
-      --accent-green: #34d399;
-      --accent-amber: #fbbf24;
+      --bg-gradient: radial-gradient(circle at 15% 15%, #1e1b4b 0%, #0f172a 50%, #020617 100%);
+      --glass-bg: rgba(30, 41, 59, 0.55);
+      --glass-bg-hover: rgba(51, 65, 85, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-glow: rgba(56, 189, 248, 0.25);
+      --accent-cyan: #38bdf8;
+      --accent-violet: #a855f7;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
       --accent-rose: #f43f5e;
       --text-main: #f8fafc;
       --text-sub: #94a3b8;
-      --border-color: #334155;
+      --sidebar-width: 280px;
     }
 
     * {
@@ -28,86 +32,131 @@
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: var(--bg-dark);
+      background: var(--bg-gradient);
       color: var(--text-main);
-      padding: 20px;
+      min-height: 100vh;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      overflow-x: hidden;
+    }
+
+    /* iOS 26 Liquid Glass Container */
+    .app-container {
+      display: flex;
+      width: 100vw;
       min-height: 100vh;
     }
 
-    /* Control Bar & Sync Header */
-    .top-navbar {
-      width: 100%;
-      max-width: 1000px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 16px 24px;
-      margin-bottom: 24px;
+    /* Sidebar - Liquid Glass iOS 26 */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-right: 1px solid var(--glass-border);
+      padding: 28px 20px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      flex-direction: column;
+      gap: 28px;
+      position: fixed;
+      height: 100vh;
+      z-index: 100;
+      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
     }
 
-    .brand-info {
+    .brand-section {
       display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-badge {
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent-blue);
-      font-weight: 700;
-      font-size: 12px;
-      padding: 6px 14px;
-      border-radius: 20px;
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      letter-spacing: 0.5px;
-    }
-
-    .sync-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .btn {
-      background: linear-gradient(135deg, #38bdf8, #818cf8);
-      color: #0f172a;
-      border: none;
-      padding: 8px 18px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
+      flex-direction: column;
       gap: 6px;
     }
 
-    .btn:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
     }
 
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .sidebar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sidebar-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--accent-cyan);
+      font-weight: 700;
+      padding-left: 4px;
+    }
+
+    /* Week Selector Buttons in Sidebar */
+    .week-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .week-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
       color: var(--text-main);
-      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.15);
+    .week-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(4px);
+      border-color: rgba(56, 189, 248, 0.4);
     }
 
-    .status-indicator {
+    .week-btn.active {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(168, 85, 247, 0.25));
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+      color: #fff;
+    }
+
+    .week-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Preferences Box in Sidebar */
+    .pref-box {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .status-pill {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -115,64 +164,150 @@
       color: var(--text-sub);
     }
 
-    .dot {
+    .status-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background-color: var(--accent-amber);
+      background: var(--accent-amber);
+      box-shadow: 0 0 8px var(--accent-amber);
     }
 
-    .dot.online {
-      background-color: var(--accent-green);
-      box-shadow: 0 0 8px var(--accent-green);
+    .status-dot.online {
+      background: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
     }
 
-    .filter-bar {
-      width: 100%;
-      max-width: 1000px;
+    .btn-liquid {
+      background: linear-gradient(135deg, #38bdf8, #6366f1);
+      color: #020617;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
       display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+      text-decoration: none;
     }
 
-    .filter-select {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
+    .btn-liquid:hover {
+      opacity: 0.95;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-glass-secondary {
+      background: rgba(255, 255, 255, 0.06);
       color: var(--text-main);
-      padding: 8px 14px;
-      border-radius: 10px;
+      border: 1px solid var(--glass-border);
+      padding: 9px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-glass-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Main Content Area */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 32px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      max-width: calc(100vw - var(--sidebar-width));
+    }
+
+    /* Top Bar & Filters */
+    .top-filter-bar {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      color: var(--text-sub);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .glass-select {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 9px 14px;
+      border-radius: 12px;
       font-family: inherit;
       font-size: 13px;
       outline: none;
       cursor: pointer;
+      transition: all 0.2s;
     }
 
-    /* Presentation Slide Deck Container */
-    .slide-wrapper {
+    .glass-select:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+    }
+
+    /* Presentation Slide Deck Canvas */
+    .slide-deck {
       width: 100%;
-      max-width: 1000px;
       position: relative;
     }
 
-    .slide {
+    .glass-slide {
       display: none;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(30px) saturate(190%);
+      -webkit-backdrop-filter: blur(30px) saturate(190%);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
       padding: 40px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-      min-height: 520px;
-      animation: fadeIn 0.3s ease-in-out forwards;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      min-height: 540px;
+      animation: glassFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    .slide.active {
+    .glass-slide.active {
       display: block;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes glassFade {
+      from { opacity: 0; transform: scale(0.98) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
     }
 
     .slide-header {
@@ -180,139 +315,168 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 28px;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--glass-border);
       padding-bottom: 16px;
     }
 
     .slide-title {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
-      color: var(--text-main);
       display: flex;
       align-items: center;
       gap: 12px;
+      letter-spacing: -0.3px;
     }
 
-    /* Grid Layouts */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
+    .liquid-badge {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--accent-cyan);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
     }
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
+    /* Grids & Cards */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-    }
-
-    .stat-card {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
+    .glass-card {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
       padding: 20px;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
     }
 
-    .stat-label {
-      font-size: 13px;
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+      opacity: 0.3;
+    }
+
+    .card-label {
+      font-size: 12px;
       color: var(--text-sub);
+      font-weight: 600;
       margin-bottom: 8px;
     }
 
-    .stat-value {
+    .card-value {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 700;
-      color: var(--accent-blue);
+      color: var(--accent-cyan);
+      letter-spacing: -0.5px;
     }
 
-    .stat-subtext {
-      font-size: 12px;
-      color: var(--accent-green);
+    .card-subtext {
+      font-size: 11px;
+      color: var(--accent-emerald);
       margin-top: 6px;
     }
 
-    /* Data Table Styling */
+    /* iOS Table */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      background: rgba(15, 23, 42, 0.4);
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
+      text-align: left;
     }
 
     th, td {
-      padding: 12px 14px;
-      text-align: left;
-      border-bottom: 1px solid var(--border-color);
+      padding: 14px 16px;
       font-size: 13px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     th {
+      background: rgba(15, 23, 42, 0.7);
       color: var(--text-sub);
-      font-weight: 600;
-      background: rgba(15, 23, 42, 0.5);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.8px;
     }
 
     tr:hover {
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(255, 255, 255, 0.03);
     }
 
-    .category-badge {
-      display: inline-block;
+    .badge-cat {
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      color: var(--accent-violet);
       padding: 3px 10px;
       border-radius: 12px;
       font-size: 11px;
       font-weight: 600;
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent-blue);
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      display: inline-block;
     }
 
-    /* Slide Deck Navigation */
+    .evidence-img {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .evidence-img:hover {
+      transform: scale(1.15);
+    }
+
+    .evidence-link-btn {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* Deck Navigation Footer */
     .deck-nav {
-      width: 100%;
-      max-width: 1000px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 20px;
+      margin-top: 12px;
     }
 
     .nav-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
       color: var(--text-main);
-      padding: 10px 20px;
-      border-radius: 12px;
+      padding: 10px 22px;
+      border-radius: 14px;
       font-weight: 600;
+      font-size: 13px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
 
     .nav-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-1px);
     }
 
     .slide-counter {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-sub);
       font-weight: 600;
-    }
-
-    .notice-box {
-      background: rgba(251, 191, 36, 0.1);
-      border: 1px solid rgba(251, 191, 36, 0.3);
-      color: var(--accent-amber);
-      padding: 12px 18px;
-      border-radius: 12px;
-      font-size: 13px;
-      margin-bottom: 20px;
-      line-height: 1.5;
     }
 
     .bullet-list {
@@ -324,177 +488,225 @@
 
     .bullet-list li {
       position: relative;
-      padding-left: 20px;
-      font-size: 14px;
-      color: var(--text-main);
+      padding-left: 22px;
+      font-size: 13.5px;
       line-height: 1.5;
+      color: var(--text-main);
     }
 
     .bullet-list li::before {
-      content: "•";
-      color: var(--accent-blue);
-      font-size: 18px;
+      content: "✦";
+      color: var(--accent-cyan);
       position: absolute;
       left: 0;
-      top: -2px;
+      font-size: 12px;
+      top: 1px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Bar: Live Sync Header -->
-  <div class="top-navbar">
-    <div class="brand-info">
-      <span class="brand-badge">DIGIMAP TRAINER</span>
-      <div style="font-weight: 700; font-size: 15px;">Executive Live Presentation Deck</div>
-    </div>
-    
-    <div class="sync-controls">
-      <div class="status-indicator">
-        <div class="dot" id="syncDot"></div>
-        <span id="syncStatus">Menghubungkan ke Google Sheet...</span>
+  <div class="app-container">
+
+    <!-- SIDEBAR - LIQUID GLASS iOS 26 -->
+    <div class="sidebar">
+      
+      <div class="brand-section">
+        <div class="brand-title">DIGIMAP TRAINER</div>
+        <div class="brand-subtitle">iOS 26 Executive Suite</div>
       </div>
-      <button class="btn" onclick="fetchDataFromSheet()">
-        🔄 Sync Live Data
-      </button>
-      <a href="https://docs.google.com/spreadsheets/d/15xMRwQkcodHVadxxNxkHofPr0_un92jsCH03QFVqFGM/edit" target="_blank" class="btn btn-secondary" style="text-decoration:none;">
-        📝 Buka Google Sheet
-      </a>
-    </div>
-  </div>
 
-  <!-- Dynamic Filter Bar -->
-  <div class="filter-bar">
-    <select class="filter-select" id="filterStore" onchange="renderAllSlides()">
-      <option value="ALL">Semua Cabang Store</option>
-    </select>
-
-    <select class="filter-select" id="filterCategory" onchange="renderAllSlides()">
-      <option value="ALL">Semua Kategori Aktivitas</option>
-    </select>
-
-    <select class="filter-select" id="filterDay" onchange="renderAllSlides()">
-      <option value="ALL">Semua Hari (Senin - Jumat)</option>
-    </select>
-  </div>
-
-  <!-- Instruction Box if Sheet needs public permission -->
-  <div class="notice-box" id="sheetNotice" style="display:none; width:100%; max-width:1000px;">
-    ⚠️ <strong>Catatan Akses Google Sheet:</strong> Jika data tidak otomatis muncul, pastikan akses Google Sheet Anda telah diatur ke <em>"Anyone with the link can view"</em> (Siapa saja yang memiliki link dapat melihat) agar browser dapat membaca data secara otomatis.
-  </div>
-
-  <!-- Slide Wrapper -->
-  <div class="slide-wrapper">
-
-    <!-- SLIDE 1: COVER -->
-    <div class="slide active" id="slide1">
-      <div style="text-align: center; padding: 60px 20px;">
-        <span class="brand-badge" style="margin-bottom: 20px; display: inline-block;">WEEKLY & MONTHLY EXECUTIVE REPORT</span>
-        <h1 style="font-size: 38px; font-weight: 800; margin-bottom: 16px; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-          Laporan Aktivitas & Performa Trainer Store
-        </h1>
-        <p style="color: var(--text-sub); font-size: 16px; margin-bottom: 36px;" id="coverSubtitle">
-          Monitoring Real-time Aktivitas Pelatihan, Raport Staff, & Program SEED Cabang Store
-        </p>
-        <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: var(--text-sub); flex-wrap: wrap;">
-          <div>📍 <strong id="coverStores">Multi-Store Cabang</strong></div>
-          <div>📅 <span id="coverPeriod">Update Terkini</span></div>
-          <div>👤 <strong>Role:</strong> Field Store Trainer</div>
+      <!-- SECTION 1: CALENDAR WEEK SELECTION -->
+      <div class="sidebar-section">
+        <div class="sidebar-label">📅 Pilih Minggu (Calendar)</div>
+        <div class="week-nav-list" id="weekNavList">
+          <button class="week-btn active" onclick="selectWeek('ALL')">
+            <span>Semua Week</span>
+            <span class="week-badge" id="badgeAll">All</span>
+          </button>
+          <!-- Dynamic Week Buttons populated via JS -->
         </div>
       </div>
+
+      <!-- SECTION 2: PREFERENCES & LIVE SYNC -->
+      <div class="sidebar-section" style="margin-top: auto;">
+        <div class="sidebar-label">⚙️ Preferences</div>
+        <div class="pref-box">
+          <div class="status-pill">
+            <div class="status-dot" id="syncDot"></div>
+            <span id="syncStatus">Menghubungkan...</span>
+          </div>
+
+          <button class="btn-liquid" onclick="fetchDataFromSheet()">
+            🔄 Sync Live Data
+          </button>
+
+          <a href="https://docs.google.com/spreadsheets/d/15xMRwQkcodHVadxxNxkHofPr0_un92jsCH03QFVqFGM/edit?usp=sharing" target="_blank" class="btn-glass-secondary">
+            📝 Buka Google Sheet
+          </a>
+        </div>
+      </div>
+
     </div>
 
-    <!-- SLIDE 2: RINGKASAN METRIK OTOMATIS -->
-    <div class="slide" id="slide2">
-      <div class="slide-header">
-        <div class="slide-title">📊 Ringkasan Kuantitatif Aktivitas</div>
-        <span class="brand-badge">Auto Metrics</span>
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-content">
+
+      <!-- TOP FILTER BAR -->
+      <div class="top-filter-bar">
+        
+        <!-- Filter 1: Tanggal & Hari -->
+        <div class="filter-group">
+          <span class="filter-label">📅 Tanggal:</span>
+          <select class="glass-select" id="filterDate" onchange="renderAllSlides()">
+            <option value="ALL">Semua Tanggal & Hari</option>
+          </select>
+        </div>
+
+        <!-- Filter 2: Toko -->
+        <div class="filter-group">
+          <span class="filter-label">🏪 Toko:</span>
+          <select class="glass-select" id="filterStore" onchange="renderAllSlides()">
+            <option value="ALL">Semua Store</option>
+          </select>
+        </div>
+
+        <!-- Filter 3: Kategori Aktivitas -->
+        <div class="filter-group">
+          <span class="filter-label">🎯 Kategori:</span>
+          <select class="glass-select" id="filterCategory" onchange="renderAllSlides()">
+            <option value="ALL">Semua Kategori Aktivitas</option>
+          </select>
+        </div>
+
       </div>
-      <div class="grid-4" id="kpiContainer">
-        <div class="stat-card">
-          <div class="stat-label">Total Aktivitas Terdata</div>
-          <div class="stat-value" id="kpiTotalTasks">0</div>
-          <div class="stat-subtext">Item dari Google Sheet</div>
+
+      <!-- SLIDE DECK CANVAS -->
+      <div class="slide-deck">
+
+        <!-- SLIDE 1: COVER -->
+        <div class="glass-slide active" id="slide1">
+          <div style="text-align: center; padding: 60px 20px;">
+            <span class="liquid-badge" style="margin-bottom: 24px; display: inline-block;">WEEKLY EXECUTIVE REPORT</span>
+            <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 12px; background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px;">
+              Laporan Aktivitas & Performa Trainer
+            </h1>
+            <p style="color: var(--text-sub); font-size: 16px; margin-bottom: 40px;" id="coverSubtitle">
+              Report Real-time Aktivity
+            </p>
+
+            <div style="display: flex; justify-content: center; gap: 28px; font-size: 14px; color: var(--text-sub); flex-wrap: wrap;">
+              <div>📍 <strong id="coverStores">Multi-Store Cabang</strong></div>
+              <div>📅 <span id="coverPeriod">Update Terkini</span></div>
+              <div style="color: var(--accent-cyan); font-weight: 700;">
+                👤 Trainer Executive: <span id="trainerNameDisplay">Frandy Putra</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Sesi Coaching & SEED</div>
-          <div class="stat-value" id="kpiSeedCount">0</div>
-          <div class="stat-subtext">Sesi Pembinaan Staff</div>
+
+        <!-- SLIDE 2: AUTO GENERATED KPI METRICS -->
+        <div class="glass-slide" id="slide2">
+          <div class="slide-header">
+            <div class="slide-title">📊 Auto-Generated Metrics Kategori Aktivitas</div>
+            <span class="liquid-badge">Auto Computed</span>
+          </div>
+
+          <div class="grid-4" id="kpiContainer">
+            <div class="glass-card">
+              <div class="card-label">Total Aktivitas Terdata</div>
+              <div class="card-value" id="kpiTotalTasks">0</div>
+              <div class="card-subtext">Item dari Sheet</div>
+            </div>
+            <div class="glass-card">
+              <div class="card-label">Sesi Coaching & SEED</div>
+              <div class="card-value" id="kpiSeedCount">0</div>
+              <div class="card-subtext">Auto-counted</div>
+            </div>
+            <div class="glass-card">
+              <div class="card-label">Evaluasi Raport Staff (RS)</div>
+              <div class="card-value" id="kpiRsCount">0</div>
+              <div class="card-subtext">Auto-counted</div>
+            </div>
+            <div class="glass-card">
+              <div class="card-label">Demo Open Studio</div>
+              <div class="card-value" id="kpiStudioCount">0</div>
+              <div class="card-subtext">Auto-counted</div>
+            </div>
+          </div>
+
+          <div class="glass-card" style="margin-top: 24px; padding: 24px;">
+            <h3 style="font-size: 15px; margin-bottom: 16px; color: var(--accent-cyan);">Distribusi Kategori Aktivitas Mingguan</h3>
+            <div style="height: 200px; width: 100%;">
+              <canvas id="categoryChart"></canvas>
+            </div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Evaluasi Raport Staff (RS)</div>
-          <div class="stat-value" id="kpiRsCount">0</div>
-          <div class="stat-subtext">Cabang Store Terjangkau</div>
+
+        <!-- SLIDE 3: RINCIAN LOG HARIAN -->
+        <div class="glass-slide" id="slide3">
+          <div class="slide-header">
+            <div class="slide-title">📅 Rincian Aktivitas Harian</div>
+            <span class="liquid-badge" id="slide3WeekBadge">Week Active</span>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Hari</th>
+                  <th>Toko</th>
+                  <th>Kategori Aktivitas</th>
+                  <th>Detail Task</th>
+                  <th>Hasil / Achievement</th>
+                  <th>Foto Evidence</th>
+                </tr>
+              </thead>
+              <tbody id="dailyLogTableBody">
+                <tr>
+                  <td colspan="7" style="text-align: center; color: var(--text-sub); padding: 30px;">Memuat data dari Google Sheet...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Demo Open Studio</div>
-          <div class="stat-value" id="kpiStudioCount">0</div>
-          <div class="stat-subtext">Sesi Edukasi Customer</div>
+
+        <!-- SLIDE 4: CATATAN & ACTION PLAN -->
+        <div class="glass-slide" id="slide4">
+          <div class="slide-header">
+            <div class="slide-title">🎯 Catatan Lapangan & Action Plan</div>
+            <span class="liquid-badge">Field Notes</span>
+          </div>
+
+          <div class="grid-2">
+            <div class="glass-card">
+              <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--accent-amber);">Catatan & Kendala Lapangan</h3>
+              <ul class="bullet-list" id="fieldNotesList">
+                <li>Memuat catatan kendala...</li>
+              </ul>
+            </div>
+
+            <div class="glass-card">
+              <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--accent-emerald);">Rencana Tindak Lanjut</h3>
+              <ul class="bullet-list" id="actionPlanList">
+                <li>Memuat rencana...</li>
+              </ul>
+            </div>
+          </div>
         </div>
+
       </div>
-      <div style="margin-top: 24px; background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px;">
-        <h3 style="font-size: 15px; margin-bottom: 12px; color: var(--accent-blue);">Visual Distribusi Kategori Aktivitas</h3>
-        <div style="height: 200px; width: 100%;">
-          <canvas id="categoryChart"></canvas>
-        </div>
+
+      <!-- DECK NAVIGATION FOOTER -->
+      <div class="deck-nav">
+        <button class="nav-btn" onclick="prevSlide()">← Slide Sebelumnya</button>
+        <div class="slide-counter" id="slideCounter">Slide 1 dari 4</div>
+        <button class="nav-btn" onclick="nextSlide()">Slide Selanjutnya →</button>
       </div>
+
     </div>
 
-    <!-- SLIDE 3: LOG HARIAN DETIL (SENIN - JUMAT) -->
-    <div class="slide" id="slide3">
-      <div class="slide-header">
-        <div class="slide-title">📅 Rincian Aktivitas Harian (Live Sheet Data)</div>
-        <span class="brand-badge">Daily Schedule</span>
-      </div>
-      <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Tanggal / Hari</th>
-              <th>Cabang Store</th>
-              <th>Kategori</th>
-              <th>Detail Task</th>
-              <th>Hasil / Achievement</th>
-            </tr>
-          </thead>
-          <tbody id="dailyLogTableBody">
-            <tr>
-              <td colspan="5" style="text-align: center; color: var(--text-sub);">Memuat data dari Google Sheet...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- SLIDE 4: TEMUAN, KENDALA & ACTION PLAN -->
-    <div class="slide" id="slide4">
-      <div class="slide-header">
-        <div class="slide-title">🎯 Catatan Lapangan, Kendala & Action Plan</div>
-        <span class="brand-badge">Field Notes & Next Steps</span>
-      </div>
-      <div class="grid-2">
-        <div class="stat-card">
-          <h3 style="font-size: 16px; margin-bottom: 14px; color: var(--accent-amber);">Catatan & Kendala Lapangan</h3>
-          <ul class="bullet-list" id="fieldNotesList">
-            <li>Memuat catatan kendala dari Google Sheet...</li>
-          </ul>
-        </div>
-        <div class="stat-card">
-          <h3 style="font-size: 16px; margin-bottom: 14px; color: var(--accent-green);">Rencana Tindak Lanjut Minggu Depan</h3>
-          <ul class="bullet-list" id="actionPlanList">
-            <li>Memuat rencana tindak lanjut dari Google Sheet...</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Deck Navigation Controls -->
-  <div class="deck-nav">
-    <button class="nav-btn" onclick="prevSlide()">← Slide Sebelumnya</button>
-    <div class="slide-counter" id="slideCounter">Slide 1 dari 4</div>
-    <button class="nav-btn" onclick="nextSlide()">Slide Selanjutnya →</button>
   </div>
 
   <script>
@@ -502,97 +714,159 @@
     const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json`;
 
     let rawSheetData = [];
+    let trainerName = "Frandy Putra";
+    let selectedWeek = 'ALL';
     let currentSlideIndex = 0;
     const totalSlides = 4;
     let chartInstance = null;
 
-    // Fetch live data from Google Sheet GViz API
     async function fetchDataFromSheet() {
       const syncDot = document.getElementById('syncDot');
       const syncStatus = document.getElementById('syncStatus');
       
-      syncDot.className = 'dot';
+      syncDot.className = 'status-dot';
       syncStatus.innerText = 'Syncing...';
 
       try {
         const response = await fetch(GVIZ_URL);
         const text = await response.text();
         
-        // Parse Google Visualization JSON payload
         const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
         const json = JSON.parse(jsonString);
         
-        const cols = json.table.cols.map(c => c ? c.label : '');
         const rows = json.table.rows;
 
-        rawSheetData = rows.map(r => {
-          const cells = r.c || [];
+        // Cell B1 contains Trainer Name if structured as metadata
+        if (rows[0] && rows[0].c && rows[0].c[1] && rows[0].c[1].v) {
+          trainerName = rows[0].c[1].v;
+          document.getElementById('trainerNameDisplay').innerText = trainerName;
+        }
+
+        // Table Data starts from Row 4 (index 3)
+        rawSheetData = rows.slice(3).map(r => {
+          const c = r.c || [];
           return {
-            tanggal: cells[0] ? (cells[0].f || cells[0].v || '') : '',
-            hari: cells[1] ? (cells[1].v || '') : '',
-            store: cells[2] ? (cells[2].v || '') : '',
-            kategori: cells[3] ? (cells[3].v || '') : '',
-            detail: cells[4] ? (cells[4].v || '') : '',
-            hasil: cells[5] ? (cells[5].v || '') : '',
-            catatan: cells[6] ? (cells[6].v || '') : ''
+            week: c[0] ? String(c[0].v || '') : '',
+            tanggal: c[1] ? (c[1].f || c[1].v || '') : '',
+            hari: c[2] ? String(c[2].v || '') : '',
+            toko: c[3] ? String(c[3].v || '') : '',
+            kategori: c[4] ? String(c[4].v || '') : '',
+            detail: c[5] ? String(c[5].v || '') : '',
+            hasil: c[6] ? String(c[6].v || '') : '',
+            catatan: c[7] ? String(c[7].v || '') : '',
+            evidence: c[8] ? String(c[8].v || '') : ''
           };
-        }).filter(item => item.hari || item.store || item.detail);
+        }).filter(item => item.week || item.hari || item.toko || item.detail);
 
-        syncDot.className = 'dot online';
+        syncDot.className = 'status-dot online';
         syncStatus.innerText = `Terhubung Live (${rawSheetData.length} baris data)`;
-        document.getElementById('sheetNotice').style.display = 'none';
 
-        populateFilters();
+        populateWeekNav();
+        populateTopFilters();
         renderAllSlides();
 
       } catch (err) {
         console.error("GVIZ Fetch Error:", err);
-        syncDot.className = 'dot';
-        syncStatus.innerText = 'Gagal Sync (Cek Izin Akses)';
-        document.getElementById('sheetNotice').style.display = 'block';
+        syncDot.className = 'status-dot';
+        syncStatus.innerText = 'Gagal Sync (Cek Akses Sheet)';
       }
     }
 
-    function populateFilters() {
+    function populateWeekNav() {
+      const weekNav = document.getElementById('weekNavList');
+      const weeks = [...new Set(rawSheetData.map(d => d.week).filter(Boolean))];
+
+      let html = `<button class="week-btn ${selectedWeek === 'ALL' ? 'active' : ''}" onclick="selectWeek('ALL')">
+        <span>Semua Week</span>
+        <span class="week-badge">All</span>
+      </button>`;
+
+      weeks.forEach(w => {
+        const count = rawSheetData.filter(d => d.week === w).length;
+        html += `<button class="week-btn ${selectedWeek === w ? 'active' : ''}" onclick="selectWeek('${w}')">
+          <span>${w}</span>
+          <span class="week-badge">${count} item</span>
+        </button>`;
+      });
+
+      weekNav.innerHTML = html;
+      document.getElementById('badgeAll').innerText = `${rawSheetData.length}`;
+    }
+
+    function selectWeek(week) {
+      selectedWeek = week;
+      populateWeekNav();
+      populateTopFilters();
+      renderAllSlides();
+    }
+
+    function populateTopFilters() {
+      const dateSelect = document.getElementById('filterDate');
       const storeSelect = document.getElementById('filterStore');
       const catSelect = document.getElementById('filterCategory');
-      const daySelect = document.getElementById('filterDay');
 
-      const stores = [...new Set(rawSheetData.map(d => d.store).filter(Boolean))];
-      const categories = [...new Set(rawSheetData.map(d => d.kategori).filter(Boolean))];
-      const days = [...new Set(rawSheetData.map(d => d.hari).filter(Boolean))];
+      let weekFiltered = rawSheetData;
+      if (selectedWeek !== 'ALL') {
+        weekFiltered = rawSheetData.filter(d => d.week === selectedWeek);
+      }
 
-      storeSelect.innerHTML = '<option value="ALL">Semua Cabang Store</option>' + stores.map(s => `<option value="${s}">${s}</option>`).join('');
-      catSelect.innerHTML = '<option value="ALL">Semua Kategori Aktivitas</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join('');
-      daySelect.innerHTML = '<option value="ALL">Semua Hari (Senin - Jumat)</option>' + days.map(d => `<option value="${d}">${d}</option>`).join('');
+      // Populate Date + Hari Option
+      const dates = [...new Set(weekFiltered.map(d => `${d.hari}, ${d.tanggal}`).filter(d => !d.startsWith(',')))];
+      dateSelect.innerHTML = '<option value="ALL">Semua Tanggal & Hari</option>' + 
+        dates.map(d => `<option value="${d}">${d}</option>`).join('');
+
+      // Populate Store Option
+      const stores = [...new Set(weekFiltered.map(d => d.toko).filter(Boolean))];
+      storeSelect.innerHTML = '<option value="ALL">Semua Store</option>' + 
+        stores.map(s => `<option value="${s}">${s}</option>`).join('');
+
+      // Populate Category Option
+      const categories = [...new Set(weekFiltered.map(d => d.kategori).filter(Boolean))];
+      catSelect.innerHTML = '<option value="ALL">Semua Kategori Aktivitas</option>' + 
+        categories.map(c => `<option value="${c}">${c}</option>`).join('');
     }
 
     function getFilteredData() {
+      const selectedDate = document.getElementById('filterDate').value;
       const selectedStore = document.getElementById('filterStore').value;
       const selectedCat = document.getElementById('filterCategory').value;
-      const selectedDay = document.getElementById('filterDay').value;
 
       return rawSheetData.filter(item => {
-        const matchStore = selectedStore === 'ALL' || item.store === selectedStore;
+        const matchWeek = selectedWeek === 'ALL' || item.week === selectedWeek;
+        const dateStr = `${item.hari}, ${item.tanggal}`;
+        const matchDate = selectedDate === 'ALL' || dateStr === selectedDate;
+        const matchStore = selectedStore === 'ALL' || item.toko === selectedStore;
         const matchCat = selectedCat === 'ALL' || item.kategori === selectedCat;
-        const matchDay = selectedDay === 'ALL' || item.hari === selectedDay;
-        return matchStore && matchCat && matchDay;
+
+        return matchWeek && matchDate && matchStore && matchCat;
       });
     }
 
     function renderAllSlides() {
       const data = getFilteredData();
 
-      // Cover subtitle & metadata update
-      const stores = [...new Set(data.map(d => d.store).filter(Boolean))];
+      // Cover subtitle & stores update
+      const stores = [...new Set(data.map(d => d.toko).filter(Boolean))];
       document.getElementById('coverStores').innerText = stores.length ? stores.join(', ') : 'Multi-Store Cabang';
+      document.getElementById('slide3WeekBadge').innerText = selectedWeek === 'ALL' ? 'Semua Week' : selectedWeek;
 
-      // KPI Slide Updates
+      // Auto Generate KPI Metrics from Kategori Aktivitas column
       document.getElementById('kpiTotalTasks').innerText = data.length;
-      
-      const seedCount = data.filter(d => (d.kategori || '').toLowerCase().includes('seed') || (d.detail || '').toLowerCase().includes('coaching')).length;
-      const rsCount = data.filter(d => (d.kategori || '').toLowerCase().includes('raport') || (d.kategori || '').toLowerCase().includes('rs')).length;
-      const studioCount = data.filter(d => (d.kategori || '').toLowerCase().includes('open studio') || (d.kategori || '').toLowerCase().includes('demo')).length;
+
+      const seedCount = data.filter(d => {
+        const cat = (d.kategori || '').toLowerCase();
+        return cat.includes('coaching') || cat.includes('seed');
+      }).length;
+
+      const rsCount = data.filter(d => {
+        const cat = (d.kategori || '').toLowerCase();
+        return cat.includes('raport') || cat.includes('rs');
+      }).length;
+
+      const studioCount = data.filter(d => {
+        const cat = (d.kategori || '').toLowerCase();
+        return cat.includes('open studio') || cat.includes('demo');
+      }).length;
 
       document.getElementById('kpiSeedCount').innerText = seedCount;
       document.getElementById('kpiRsCount').innerText = rsCount;
@@ -601,20 +875,33 @@
       // Render Chart
       renderChart(data);
 
-      // Render Daily Table
+      // Render Table on Slide 3 (Tanggal | Hari | Toko | Kategori Aktivitas | Detail Task | Hasil | Foto Evidence)
       const tbody = document.getElementById('dailyLogTableBody');
       if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-sub);">Tidak ada data aktivitas yang sesuai dengan filter.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-sub); padding: 30px;">Tidak ada data aktivitas yang cocok dengan filter.</td></tr>';
       } else {
-        tbody.innerHTML = data.map(item => `
-          <tr>
-            <td><strong>${item.hari || '-'}</strong><br><span style="font-size:11px; color:var(--text-sub);">${item.tanggal || ''}</span></td>
-            <td><strong>${item.store || '-'}</strong></td>
-            <td><span class="category-badge">${item.kategori || 'General'}</span></td>
-            <td>${item.detail || '-'}</td>
-            <td style="color:var(--accent-green);">${item.hasil || '-'}</td>
-          </tr>
-        `).join('');
+        tbody.innerHTML = data.map(item => {
+          let evidenceHtml = '<span style="color:var(--text-sub); font-size:11px;">-</span>';
+          if (item.evidence) {
+            if (item.evidence.startsWith('http')) {
+              evidenceHtml = `<a href="${item.evidence}" target="_blank" class="evidence-link-btn">📷 Lihat Foto</a>`;
+            } else {
+              evidenceHtml = `<span class="evidence-link-btn" title="${item.evidence}">📷 ${item.evidence}</span>`;
+            }
+          }
+
+          return `
+            <tr>
+              <td><strong>${item.tanggal || '-'}</strong></td>
+              <td>${item.hari || '-'}</td>
+              <td><strong>${item.toko || '-'}</strong></td>
+              <td><span class="badge-cat">${item.kategori || 'General'}</span></td>
+              <td>${item.detail || '-'}</td>
+              <td style="color:var(--accent-emerald);">${item.hasil || '-'}</td>
+              <td>${evidenceHtml}</td>
+            </tr>
+          `;
+        }).join('');
       }
 
       // Render Field Notes & Action Plan
@@ -626,11 +913,11 @@
 
       notesList.innerHTML = notes.length 
         ? notes.map(n => `<li>${n}</li>`).join('') 
-        : '<li>Seluruh aktivitas harian berjalan lancar tanpa kendala dilaporkan.</li>';
+        : '<li>Seluruh aktivitas berjalan lancar tanpa kendala.</li>';
 
       actionList.innerHTML = actionItems.length 
         ? actionItems.map(a => `<li>Evaluasi & tindak lanjut: ${a}</li>`).join('')
-        : '<li>Rencana pemantauan rutin untuk periode berikutnya.</li>';
+        : '<li>Rencana pemantauan berkala untuk minggu berikutnya.</li>';
     }
 
     function renderChart(data) {
@@ -656,8 +943,8 @@
           datasets: [{
             label: 'Jumlah Aktivitas',
             data: counts.length ? counts : [0],
-            backgroundColor: ['#38bdf8', '#818cf8', '#34d399', '#fbbf24', '#f43f5e'],
-            borderRadius: 6
+            backgroundColor: ['#38bdf8', '#a855f7', '#10b981', '#f59e0b', '#f43f5e'],
+            borderRadius: 8
           }]
         },
         options: {
@@ -667,16 +954,15 @@
             legend: { display: false }
           },
           scales: {
-            x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
-            y: { ticks: { color: '#94a3b8', stepSize: 1 }, grid: { color: '#334155' }, beginAtZero: true }
+            x: { ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } }, grid: { display: false } },
+            y: { ticks: { color: '#94a3b8', stepSize: 1, font: { family: 'Plus Jakarta Sans' } }, grid: { color: 'rgba(255, 255, 255, 0.08)' }, beginAtZero: true }
           }
         }
       });
     }
 
-    // Slide Navigation
     function showSlide(index) {
-      const slides = document.querySelectorAll('.slide');
+      const slides = document.querySelectorAll('.glass-slide');
       slides.forEach((s, i) => {
         s.classList.toggle('active', i === index);
       });
@@ -696,13 +982,11 @@
       }
     }
 
-    // Keyboard Arrow Keys Navigation
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight' || e.key === 'Space') nextSlide();
       if (e.key === 'ArrowLeft') prevSlide();
     });
 
-    // Auto Initial Fetch
     fetchDataFromSheet();
   </script>
 </body>
