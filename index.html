@@ -216,7 +216,7 @@ async function loadEv(force){
       if(!/^(https?:|data:image)/.test(f)){miss++;EVSTAT.miss++;if(r[3])EVSTAT.why=r[3];f=''}
       (EV[`${S.year}-${M}-${d}`]=EV[`${S.year}-${M}-${d}`]||[]).push({foto:f,akt:r[2]||''})});
     evFor=key;if(miss&&!S.script)toast(`${miss} foto evidence tidak terbaca dari link. Foto "insert image in cell" butuh Apps Script (lihat Preferences).`)
-  }catch(e){evFor=null;EVSTAT.err=String(e.message||e)}}
+  }catch(e){evFor=null;const m=String(e.message||e);EVSTAT.err=/load failed|failed to fetch|networkerror/i.test(m)?'Apps Script tidak bisa dibaca. Kemungkinan izin belum disetujui atau script error. Buka URL Apps Script + ?m=2026-10 di tab baru untuk melihat errornya.':m}}
 const sid=()=>(S.sheet.match(/\/d\/([\w-]+)/)||S.sheet.match(/^([\w-]{20,})$/)||[])[1];
 function cands(m){const f=MN[m],sh=f.slice(0,3),mm=String(m+1).padStart(2,'0');
   const p=(S.tab||'{Month}').replace('{Month}',f).replace('{MONTH}',f.toUpperCase()).replace('{Mon}',sh).replace('{MM}',mm);
