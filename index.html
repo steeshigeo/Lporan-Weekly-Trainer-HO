@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Weekly Activity Presentation</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
 <style>
 :root{--bg1:#dce8ff;--bg2:#ffe2f0;--bg3:#d6f8e8;--fg:#0b1226;--fg2:rgba(11,18,38,.6);--g:rgba(255,255,255,.5);--gb:rgba(255,255,255,.75);--acc:#0a84ff;--chip:rgba(255,255,255,.55);--sh:rgba(30,50,100,.16);color-scheme:light}
 [data-theme=dark]{--bg1:#0a1030;--bg2:#2b1148;--bg3:#04303a;--fg:#f5f7ff;--fg2:rgba(245,247,255,.62);--g:rgba(32,36,62,.45);--gb:rgba(255,255,255,.18);--acc:#4da3ff;--chip:rgba(255,255,255,.1);--sh:rgba(0,0,0,.4);color-scheme:dark}
@@ -297,8 +296,13 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clea
 function menu(o){document.body.classList.toggle('open',o);$('#menu').setAttribute('aria-expanded',o);$('#menu').setAttribute('aria-label',o?'Tutup menu':'Buka menu')}
 
 /* ---------- export ---------- */
+/* library export dimuat saat dibutuhkan, dengan 3 sumber cadangan */
+function loadLib(){return window.PptxGenJS?Promise.resolve():new Promise((ok,no)=>{
+  const u=['https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js','https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js','https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js'];let i=0;
+  (function t(){if(window.PptxGenJS)return ok();if(i>=u.length)return no(new Error('gagal'));const e=document.createElement('script');e.src=u[i++];e.onload=()=>window.PptxGenJS?ok():t();e.onerror=()=>{e.remove();t()};document.head.appendChild(e)})()})}
 async function exportDeck(key){
-  if(!window.PptxGenJS)return toast('Library export belum termuat. Periksa koneksi internet.');
+  toast('Menyiapkan file export…');
+  try{await loadLib()}catch(e){return toast('Library export gagal dimuat dari 3 sumber. Matikan content blocker atau VPN, lalu muat ulang halaman dan coba lagi.')}
   if(!cache[M])return toast('Belum ada data untuk diexport.');
   slides=build(cache[M]);
   const p=new PptxGenJS();p.layout='LAYOUT_16x9';const BG='0B1230',FG='FFFFFF',MU='A9B4D6',AC='4DA3FF';
@@ -352,7 +356,7 @@ function init(){
   $('#stage').addEventListener('focusout',e=>{const el=e.target.closest('[data-k]');if(!el)return;const k=el.dataset.k;(EDIT[k]=EDIT[k]||{})[el.dataset.f]=el.textContent.trim();dirty=true;try{localStorage.setItem('wp-edits',JSON.stringify(EDIT))}catch(x){}});
   $('#stage').addEventListener('click',e=>{if(e.target.classList.contains('pi')){$('#lb img').src=e.target.src;$('#lb').classList.add('on')}});
   $('#lb').onclick=()=>$('#lb').classList.remove('on');
-  applyTheme();
+  applyTheme();loadLib().catch(()=>{});
   weeks=weeksOf(+S.year,M);const t=now.getDate();W=Math.max(0,weeks.findIndex(w=>w.includes(t)||w[0]>t));if(W<0)W=0;
   show()}
 init();
