@@ -182,13 +182,19 @@ let dirty=false,evFor=null,EVSTAT={rows:0,miss:0,err:'',why:''};const EV={};let 
 const CATS=[[/off\s?day|libur|cuti/i,'Off Day'],[/interview|rekrut/i,'Rekrutmen'],[/visit|kunjungan/i,'Store Visit'],[/meeting|rapat|briefing/i,'Meeting'],[/monitor|check|cek|audit/i,'Monitoring'],[/training|pelatihan|coaching|role ?play/i,'Training'],[/reminder|koordinasi|follow/i,'Koordinasi'],[/revisi|report|laporan|keynote|materi|presentasi|deck|slide/i,'Administrasi & Materi']];
 const catOf=t=>(CATS.find(c=>c[0].test(t))||[0,'Lainnya'])[1];
 /* satu sel tanggal -> daftar aktivitas. Baris "Visit Mxxx ..." = toko; baris "- ..." = aktivitas; "Catatan:/Kendala:" dan "Action Plan:/Tindak lanjut:" opsional */
+/* "Detail #catatan/kendala *action plan" -> {d,n,a} */
+function marks(b){const n=[],a=[],f=b.search(/(?:^|\s)[#*]/);
+  if(f<0)return{d:b,n:'',a:''};
+  for(const m of b.matchAll(/(?:^|\s)([#*])([\s\S]*?)(?=\s[#*]|$)/g)){const v=m[2].trim();if(v)(m[1]==='#'?n:a).push(v)}
+  return{d:b.slice(0,f).trim()||b,n:n.join('; '),a:a.join('; ')}}
 function parseCell(txt){const out=[];let toko='';
   txt.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(l=>{const b=l.replace(/^[-•*–]\s*/,'');let m;
     if(out.length&&(m=b.match(/^(?:catatan|kendala|note)s?\s*[:：]\s*(.+)/i))){out.at(-1).n=m[1];return}
     if(out.length&&(m=b.match(/^(?:action plan|tindak lanjut|follow ?up|aksi)\s*[:：]\s*(.+)/i))){out.at(-1).a=m[1];return}
-    if(!/^[-•*–]/.test(l)&&(m=b.match(/^(?:visit|kunjungan)\s+(.+)/i))){toko=m[1];out.push({toko,text:b,cat:'Store Visit',n:'',a:'',head:1});return}
-    out.push({toko,text:b,cat:catOf(b),n:'',a:''})});
-  return out.filter((o,i)=>!o.head||!out.some((p,j)=>j!==i&&!p.head&&p.toko===o.toko))}
+    const k=marks(b);
+    if(!/^[-•*–]/.test(l)&&(m=k.d.match(/^(?:visit|kunjungan)\s+(.+)/i))){toko=m[1];out.push({toko,text:k.d,cat:'Store Visit',n:k.n,a:k.a,head:1});return}
+    out.push({toko,text:k.d,cat:catOf(k.d),n:k.n,a:k.a})});
+  return out.filter((o,i)=>!o.head||o.n||o.a||!out.some((p,j)=>j!==i&&!p.head&&p.toko===o.toko))}
 function extract(g){
   const dr=g.map((row,r)=>row.some(isD)?r:-1).filter(r=>r>=0),ev={};
   dr.forEach((r,i)=>{const end=dr[i+1]??g.length,row=g[r];let prev=0,wrapped=false;
@@ -248,13 +254,14 @@ function build(state){
   const wk=weeks[W]||[],ev=state.events||{},Y=+S.year,out=[],all=[];let foto=0;const lines=[];
   out.push({t:'cover',h:`Week ${W+1}`,sub:`${wk[0]} – ${wk.at(-1)} ${MI[M]} ${Y}`});
   wk.forEach(d=>{const wd=(new Date(Y,M,d).getDay()+6)%7,raw=ev[d]||[],ph=photosFor(d,raw);
-    const items=raw.map((it,i)=>{const k=`${gk(d)}-${i}`,e=EDIT[k]||{};return{...it,k,n:e.n??it.n,a:e.a??it.a,ph:ph.per[i]}});
+    const items=raw.map((it,i)=>{const k=`${gk(d)}-${i}`,e=EDIT[k]||{};return{...it,k,n:e.n??it.n,a:e.a??it.a,n0:it.n,a0:it.a,ph:ph.per[i]}});
     items.forEach(i=>all.push(i));foto+=ph.extra.length+items.reduce((n,i)=>n+i.ph.length,0);
     const tokos=[...new Set(items.map(i=>i.toko).filter(Boolean))];
     const sum=items.length?`${items.length} aktivitas${tokos.length?` di ${tokos.join(', ')}`:''}, fokus pada ${items[0].cat.toLowerCase()}`:'Belum ada aktivitas tercatat';
     lines.push([DY[wd],sum]);
     const info={day:DY[wd],date:`${d} ${MI[M]} ${Y}`,bulan:MI[M],week:W+1,tokos,sum};
-    const chunks=items.length?Array.from({length:Math.ceil(items.length/3)},(_,c)=>items.slice(c*3,c*3+3)):[[]];
+    const cs=items.some(i=>(i.n||'').length+(i.a||'').length>110)?2:3;
+    const chunks=items.length?Array.from({length:Math.ceil(items.length/cs)},(_,c)=>items.slice(c*cs,c*cs+cs)):[[]];
     chunks.forEach((ch,c)=>out.push({t:'day',...info,items:ch,page:c+1,pages:chunks.length,extra:c===chunks.length-1?ph.extra:[]}))});
   const evp=[];wk.forEach(d=>{const wd=(new Date(Y,M,d).getDay()+6)%7;(EV[gk(d)]||[]).filter(p=>p.foto).forEach(p=>evp.push({day:DY[wd],date:`${d} ${MI[M].slice(0,3)}`,akt:p.akt,foto:p.foto}))});
   const msg=EVSTAT.err?`Tab Evidence tidak terbaca: ${EVSTAT.err}`:EVSTAT.rows?`${EVSTAT.rows} baris Evidence ditemukan di bulan ini, tetapi foto untuk week ini tidak ada atau tidak terbaca${EVSTAT.why?` (${EVSTAT.why})`:''}. Pasang atau deploy ulang Apps Script di Preferences.`:(EVSTAT.total?`Tab Evidence berisi ${EVSTAT.total} baris, tetapi tanggalnya (contoh: ${EVSTAT.sample}) tidak cocok dengan ${MI[M]} ${Y}.`:EVSTAT.srvTotal!=null?`Apps Script membaca ${EVSTAT.srvTotal} baris di tab Evidence, tetapi tidak ada yang cocok dengan ${MI[M]} ${Y}. Baris pertama: ${EVSTAT.srvSample||'-'}.`:'Tidak ada baris Evidence yang diterima. Pastikan Apps Script sudah di-deploy ulang dengan versi terbaru.');
@@ -270,7 +277,7 @@ const phHTML=a=>(a||[]).map(u=>`<img class="pi" src="${esc(u)}" alt="Foto eviden
 function slideHTML(s){
   if(s.t==='cover')return `<section class="slide cover"><h1>${esc(s.h)}</h1><p>${esc(s.sub)}</p><div class="who"><b>${esc(S.name)}</b><span>${esc(S.title)}</span></div></section>`;
   if(s.t==='day')return `<section class="slide day"><div class="l"><h2>${s.day}</h2><div class="d">${s.date}${s.pages>1?`, bagian ${s.page}/${s.pages}`:''}</div><div class="m"><span>${s.bulan}</span><span>Week ${s.week}</span></div>${s.tokos.length?`<div class="s">Toko: ${esc(s.tokos.join(', '))}</div>`:''}<div class="s">${esc(s.sum)}</div></div>
-    <div class="items">${s.items.length?s.items.map(i=>`<div class="it"><div><span class="cat">${esc(i.cat)}</span></div><div class="ph">${phHTML(i.ph)}</div><div class="t">${esc(i.text)}</div><div class="f"><div><label>Catatan / Kendala</label><p contenteditable data-k="${i.k}" data-f="n" data-ph="Ketuk untuk isi">${esc(i.n)}</p></div><div><label>Action Plan / Tindak Lanjut</label><p contenteditable data-k="${i.k}" data-f="a" data-ph="Ketuk untuk isi">${esc(i.a)}</p></div></div></div>`).join(''):'<div class="empty">Belum ada aktivitas di kalender</div>'}${s.extra.length?`<div class="ex">Foto evidence lainnya<div class="ph">${phHTML(s.extra)}</div></div>`:''}</div></section>`;
+    <div class="items">${s.items.length?s.items.map(i=>`<div class="it"><div><span class="cat">${esc(i.cat)}</span></div><div class="ph">${phHTML(i.ph)}</div><div class="t">${esc(i.text)}</div><div class="f"><div><label>Catatan / Kendala</label><p contenteditable data-k="${i.k}" data-f="n" data-s="${esc(i.n0||'')}" data-ph="Ketuk untuk isi">${esc(i.n)}</p></div><div><label>Action Plan / Tindak Lanjut</label><p contenteditable data-k="${i.k}" data-f="a" data-s="${esc(i.a0||'')}" data-ph="Ketuk untuk isi">${esc(i.a)}</p></div></div></div>`).join(''):'<div class="empty">Belum ada aktivitas di kalender</div>'}${s.extra.length?`<div class="ex">Foto evidence lainnya<div class="ph">${phHTML(s.extra)}</div></div>`:''}</div></section>`;
   if(s.t==='ev')return `<section class="slide evs"><h2>Foto Evidence${s.pages>1?`, bagian ${s.page}/${s.pages}`:''}</h2>${s.ph.length?`<div class="gal">${s.ph.map(p=>`<figure><img class="pi gi" src="${esc(p.foto)}" alt="Foto evidence" loading="lazy"><figcaption><b>${p.day}, ${p.date}</b>${esc(p.akt)}</figcaption></figure>`).join('')}</div>`:`<div class="msg">${esc(s.msg)}</div>`}</section>`;
   if(s.t==='sum')return `<section class="slide sum"><h2>Summary ${esc('Week '+(W+1))}</h2><div class="stats"><div><b>${s.total}</b>aktivitas</div><div><b>${s.act}/${s.days}</b>hari terisi</div><div><b>${s.tokos.length}</b>toko</div><div><b>${s.foto}</b>foto evidence</div></div><p class="nar">${esc(s.text)}</p><div class="cats">${s.cats.map(c=>`<span class="cat">${esc(c[0])} ${c[1]}</span>`).join('')}</div><div class="sl">${s.lines.map(l=>`<p><b>${l[0]}</b>${esc(l[1])}</p>`).join('')}</div></section>`;
   return `<section class="slide"><div class="msg">${esc(s.m)}</div></section>`}
@@ -353,7 +360,7 @@ function init(){
   let x0=null;const st=$('#stage');
   st.addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
   st.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)go(I+(dx<0?1:-1));x0=null});
-  $('#stage').addEventListener('focusout',e=>{const el=e.target.closest('[data-k]');if(!el)return;const k=el.dataset.k;(EDIT[k]=EDIT[k]||{})[el.dataset.f]=el.textContent.trim();dirty=true;try{localStorage.setItem('wp-edits',JSON.stringify(EDIT))}catch(x){}});
+  $('#stage').addEventListener('focusout',e=>{const el=e.target.closest('[data-k]');if(!el)return;const k=el.dataset.k;const o=EDIT[k]=EDIT[k]||{},v=el.textContent.trim();if(v===(el.dataset.s||''))delete o[el.dataset.f];else o[el.dataset.f]=v;dirty=true;try{localStorage.setItem('wp-edits',JSON.stringify(EDIT))}catch(x){}});
   $('#stage').addEventListener('click',e=>{if(e.target.classList.contains('pi')){$('#lb img').src=e.target.src;$('#lb').classList.add('on')}});
   $('#lb').onclick=()=>$('#lb').classList.remove('on');
   applyTheme();loadLib().catch(()=>{});
