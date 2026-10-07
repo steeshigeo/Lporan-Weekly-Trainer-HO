@@ -254,7 +254,7 @@ function build(state){
   const wk=weeks[W]||[],ev=state.events||{},Y=+S.year,out=[],all=[];let foto=0;const lines=[];
   out.push({t:'cover',h:`Week ${W+1}`,sub:`${wk[0]} – ${wk.at(-1)} ${MI[M]} ${Y}`});
   wk.forEach(d=>{const wd=(new Date(Y,M,d).getDay()+6)%7,raw=ev[d]||[],ph=photosFor(d,raw);
-    const items=raw.map((it,i)=>{const k=`${gk(d)}-${i}`,e=EDIT[k]||{};return{...it,k,n:e.n??it.n,a:e.a??it.a,n0:it.n,a0:it.a,ph:ph.per[i]}});
+    const items=raw.map((it,i)=>{const k=`${gk(d)}-${i}`,e=EDIT[k]||{};return{...it,k,n:e.n||it.n,a:e.a||it.a,n0:it.n,a0:it.a,ph:ph.per[i]}});
     items.forEach(i=>all.push(i));foto+=ph.extra.length+items.reduce((n,i)=>n+i.ph.length,0);
     const tokos=[...new Set(items.map(i=>i.toko).filter(Boolean))];
     const sum=items.length?`${items.length} aktivitas${tokos.length?` di ${tokos.join(', ')}`:''}, fokus pada ${items[0].cat.toLowerCase()}`:'Belum ada aktivitas tercatat';
@@ -360,7 +360,7 @@ function init(){
   let x0=null;const st=$('#stage');
   st.addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
   st.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)go(I+(dx<0?1:-1));x0=null});
-  $('#stage').addEventListener('focusout',e=>{const el=e.target.closest('[data-k]');if(!el)return;const k=el.dataset.k;const o=EDIT[k]=EDIT[k]||{},v=el.textContent.trim();if(v===(el.dataset.s||''))delete o[el.dataset.f];else o[el.dataset.f]=v;dirty=true;try{localStorage.setItem('wp-edits',JSON.stringify(EDIT))}catch(x){}});
+  $('#stage').addEventListener('focusout',e=>{const el=e.target.closest('[data-k]');if(!el)return;const k=el.dataset.k;const o=EDIT[k]=EDIT[k]||{},v=el.textContent.trim();if(!v||v===(el.dataset.s||''))delete o[el.dataset.f];else o[el.dataset.f]=v;dirty=true;try{localStorage.setItem('wp-edits',JSON.stringify(EDIT))}catch(x){}});
   $('#stage').addEventListener('click',e=>{if(e.target.classList.contains('pi')){$('#lb img').src=e.target.src;$('#lb').classList.add('on')}});
   $('#lb').onclick=()=>$('#lb').classList.remove('on');
   applyTheme();loadLib().catch(()=>{});
