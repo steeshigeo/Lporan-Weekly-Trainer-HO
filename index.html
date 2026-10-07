@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weekly Executive Trainer Report - Liquid Glass iOS 26 Edition</title>
+  <title>Laporan Aktivitas Weekly Trainer</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
+      /* Dark Theme (Default Base) */
       --bg-gradient: radial-gradient(circle at 15% 15%, #1e1b4b 0%, #0f172a 50%, #020617 100%);
-      --glass-bg: rgba(30, 41, 59, 0.55);
-      --glass-bg-hover: rgba(51, 65, 85, 0.65);
+      --glass-bg: rgba(30, 41, 59, 0.65);
+      --glass-bg-hover: rgba(51, 65, 85, 0.75);
       --glass-border: rgba(255, 255, 255, 0.12);
       --glass-glow: rgba(56, 189, 248, 0.25);
       --accent-cyan: #38bdf8;
@@ -21,7 +22,29 @@
       --accent-rose: #f43f5e;
       --text-main: #f8fafc;
       --text-sub: #94a3b8;
-      --sidebar-width: 280px;
+      --sidebar-width-expanded: 290px;
+      --sidebar-width-collapsed: 72px;
+      --card-inner-bg: rgba(15, 23, 42, 0.55);
+      --table-header-bg: rgba(15, 23, 42, 0.75);
+    }
+
+    /* Light Theme Overrides when active */
+    [data-theme="light"] {
+      --bg-gradient: radial-gradient(circle at 15% 15%, #e0f2fe 0%, #f1f5f9 50%, #e2e8f0 100%);
+      --glass-bg: rgba(255, 255, 255, 0.75);
+      --glass-bg-hover: rgba(241, 245, 249, 0.9);
+      --glass-border: rgba(15, 23, 42, 0.12);
+      --glass-glow: rgba(2, 132, 199, 0.2);
+      --accent-cyan: #0284c7;
+      --accent-violet: #7c3aed;
+      --accent-indigo: #4f46e5;
+      --accent-emerald: #059669;
+      --accent-amber: #d97706;
+      --accent-rose: #e11d48;
+      --text-main: #0f172a;
+      --text-sub: #475569;
+      --card-inner-bg: rgba(255, 255, 255, 0.65);
+      --table-header-bg: rgba(226, 232, 240, 0.85);
     }
 
     * {
@@ -37,60 +60,110 @@
       min-height: 100vh;
       display: flex;
       overflow-x: hidden;
+      transition: background 0.4s ease, color 0.4s ease;
     }
 
-    /* iOS 26 Liquid Glass Container */
     .app-container {
       display: flex;
       width: 100vw;
       min-height: 100vh;
+      position: relative;
     }
 
-    /* Sidebar - Liquid Glass iOS 26 */
+    /* SIDEBAR WITH SMOOTH COLLAPSE / EXPAND ANIMATION */
     .sidebar {
-      width: var(--sidebar-width);
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      width: var(--sidebar-width-collapsed);
+      background: var(--glass-bg);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
       border-right: 1px solid var(--glass-border);
-      padding: 28px 20px;
+      padding: 20px 12px;
       display: flex;
       flex-direction: column;
-      gap: 28px;
+      gap: 24px;
       position: fixed;
       height: 100vh;
-      z-index: 100;
-      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow-x: hidden;
+      white-space: nowrap;
     }
 
-    .brand-section {
+    .sidebar.expanded {
+      width: var(--sidebar-width-expanded);
+      padding: 24px 20px;
+    }
+
+    /* Sidebar Header & Hamburger Trigger */
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .burger-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .burger-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .burger-line {
+      width: 20px;
+      height: 2.5px;
+      background-color: var(--accent-cyan);
+      border-radius: 4px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .sidebar.expanded .burger-btn .burger-line:nth-child(1) {
+      transform: translateY(7.5px) rotate(45deg);
+    }
+    .sidebar.expanded .burger-btn .burger-line:nth-child(2) {
+      opacity: 0;
+    }
+    .sidebar.expanded .burger-btn .burger-line:nth-child(3) {
+      transform: translateY(-7.5px) rotate(-45deg);
     }
 
     .brand-title {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 18px;
       font-weight: 700;
-      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: -0.5px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
     }
 
-    .brand-subtitle {
-      font-size: 11px;
-      color: var(--text-sub);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 600;
+    .sidebar.expanded .brand-title {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .sidebar-section {
       display: flex;
       flex-direction: column;
       gap: 12px;
+      width: 100%;
     }
 
     .sidebar-label {
@@ -100,67 +173,87 @@
       color: var(--accent-cyan);
       font-weight: 700;
       padding-left: 4px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
     }
 
-    /* Week Selector Buttons in Sidebar */
+    .sidebar.expanded .sidebar-label {
+      opacity: 1;
+    }
+
+    /* Week Nav Buttons in Sidebar */
     .week-nav-list {
       display: flex;
       flex-direction: column;
       gap: 8px;
+      width: 100%;
     }
 
     .week-btn {
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--glass-border);
       color: var(--text-main);
-      padding: 10px 14px;
+      padding: 10px;
       border-radius: 12px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      text-align: left;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.25s ease;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .sidebar.expanded .week-btn {
+      justify-content: space-between;
+      padding: 10px 14px;
     }
 
     .week-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateX(4px);
-      border-color: rgba(56, 189, 248, 0.4);
+      background: var(--glass-bg-hover);
+      border-color: var(--accent-cyan);
     }
 
     .week-btn.active {
       background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(168, 85, 247, 0.25));
       border: 1px solid var(--accent-cyan);
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
-      color: #fff;
+      box-shadow: 0 0 12px var(--glass-glow);
+    }
+
+    .week-text {
+      display: none;
+    }
+
+    .sidebar.expanded .week-text {
+      display: inline;
     }
 
     .week-badge {
       font-size: 10px;
       padding: 2px 6px;
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.15);
+      font-weight: 700;
     }
 
-    /* Preferences Box in Sidebar */
+    /* Preferences Box */
     .pref-box {
-      background: rgba(30, 41, 59, 0.5);
+      background: var(--card-inner-bg);
       border: 1px solid var(--glass-border);
       border-radius: 16px;
-      padding: 16px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
+      width: 100%;
     }
 
     .status-pill {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-sub);
     }
 
@@ -169,19 +262,19 @@
       height: 8px;
       border-radius: 50%;
       background: var(--accent-amber);
-      box-shadow: 0 0 8px var(--accent-amber);
+      flex-shrink: 0;
     }
 
     .status-dot.online {
       background: var(--accent-emerald);
-      box-shadow: 0 0 10px var(--accent-emerald);
+      box-shadow: 0 0 8px var(--accent-emerald);
     }
 
     .btn-liquid {
-      background: linear-gradient(135deg, #38bdf8, #6366f1);
-      color: #020617;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
+      color: #fff;
       border: none;
-      padding: 10px 14px;
+      padding: 9px 12px;
       border-radius: 12px;
       font-size: 12px;
       font-weight: 700;
@@ -191,49 +284,74 @@
       justify-content: center;
       gap: 8px;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
       text-decoration: none;
     }
 
     .btn-liquid:hover {
-      opacity: 0.95;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+      opacity: 0.92;
+      transform: translateY(-1px);
     }
 
     .btn-glass-secondary {
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.08);
       color: var(--text-main);
       border: 1px solid var(--glass-border);
-      padding: 9px 14px;
+      padding: 8px 12px;
       border-radius: 12px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       text-decoration: none;
       transition: all 0.2s ease;
     }
 
     .btn-glass-secondary:hover {
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.16);
     }
 
-    /* Main Content Area */
+    /* Appearance Toggle Button */
+    .appearance-toggle {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .appearance-toggle:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    /* MAIN CONTENT */
     .main-content {
-      margin-left: var(--sidebar-width);
+      margin-left: var(--sidebar-width-collapsed);
       flex: 1;
-      padding: 32px 40px;
+      padding: 28px 36px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      max-width: calc(100vw - var(--sidebar-width));
+      gap: 20px;
+      max-width: calc(100vw - var(--sidebar-width-collapsed));
+      transition: margin-left 0.35s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Top Bar & Filters */
+    .sidebar.expanded ~ .main-content {
+      margin-left: var(--sidebar-width-expanded);
+      max-width: calc(100vw - var(--sidebar-width-expanded));
+    }
+
+    /* TOP FILTER BAR */
     .top-filter-bar {
       background: var(--glass-bg);
       backdrop-filter: blur(20px);
@@ -245,7 +363,7 @@
       align-items: center;
       gap: 16px;
       flex-wrap: wrap;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
 
     .filter-group {
@@ -253,7 +371,7 @@
       align-items: center;
       gap: 8px;
       flex: 1;
-      min-width: 200px;
+      min-width: 180px;
     }
 
     .filter-label {
@@ -265,13 +383,13 @@
 
     .glass-select {
       width: 100%;
-      background: rgba(15, 23, 42, 0.7);
+      background: var(--card-inner-bg);
       border: 1px solid var(--glass-border);
       color: var(--text-main);
       padding: 9px 14px;
       border-radius: 12px;
       font-family: inherit;
-      font-size: 13px;
+      font-size: 12.5px;
       outline: none;
       cursor: pointer;
       transition: all 0.2s;
@@ -279,10 +397,10 @@
 
     .glass-select:focus {
       border-color: var(--accent-cyan);
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+      box-shadow: 0 0 10px var(--glass-glow);
     }
 
-    /* Presentation Slide Deck Canvas */
+    /* SLIDE CANVAS */
     .slide-deck {
       width: 100%;
       position: relative;
@@ -295,9 +413,9 @@
       -webkit-backdrop-filter: blur(30px) saturate(190%);
       border: 1px solid var(--glass-border);
       border-radius: 24px;
-      padding: 40px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-      min-height: 540px;
+      padding: 36px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      min-height: 520px;
       animation: glassFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
@@ -306,7 +424,7 @@
     }
 
     @keyframes glassFade {
-      from { opacity: 0; transform: scale(0.98) translateY(10px); }
+      from { opacity: 0; transform: scale(0.98) translateY(8px); }
       to { opacity: 1; transform: scale(1) translateY(0); }
     }
 
@@ -314,9 +432,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
       border-bottom: 1px solid var(--glass-border);
-      padding-bottom: 16px;
+      padding-bottom: 14px;
     }
 
     .slide-title {
@@ -324,7 +442,7 @@
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       letter-spacing: -0.3px;
     }
 
@@ -339,12 +457,12 @@
       letter-spacing: 0.5px;
     }
 
-    /* Grids & Cards */
+    /* GRIDS & CARDS */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
     .glass-card {
-      background: rgba(15, 23, 42, 0.5);
+      background: var(--card-inner-bg);
       border: 1px solid var(--glass-border);
       border-radius: 18px;
       padding: 20px;
@@ -370,7 +488,7 @@
 
     .card-value {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 700;
       color: var(--accent-cyan);
       letter-spacing: -0.5px;
@@ -382,12 +500,12 @@
       margin-top: 6px;
     }
 
-    /* iOS Table */
+    /* TABLE */
     .table-container {
       overflow-x: auto;
       border-radius: 16px;
       border: 1px solid var(--glass-border);
-      background: rgba(15, 23, 42, 0.4);
+      background: var(--card-inner-bg);
     }
 
     table {
@@ -397,22 +515,22 @@
     }
 
     th, td {
-      padding: 14px 16px;
-      font-size: 13px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 12px 14px;
+      font-size: 12.5px;
+      border-bottom: 1px solid var(--glass-border);
     }
 
     th {
-      background: rgba(15, 23, 42, 0.7);
+      background: var(--table-header-bg);
       color: var(--text-sub);
       font-weight: 700;
       text-transform: uppercase;
-      font-size: 11px;
+      font-size: 10.5px;
       letter-spacing: 0.8px;
     }
 
     tr:hover {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.04);
     }
 
     .badge-cat {
@@ -426,28 +544,15 @@
       display: inline-block;
     }
 
-    .evidence-img {
-      width: 48px;
-      height: 48px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid var(--glass-border);
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .evidence-img:hover {
-      transform: scale(1.15);
-    }
-
     .evidence-link-btn {
       font-size: 11px;
       color: var(--accent-cyan);
       text-decoration: underline;
       cursor: pointer;
+      font-weight: 600;
     }
 
-    /* Deck Navigation Footer */
+    /* DECK NAV FOOTER */
     .deck-nav {
       display: flex;
       justify-content: space-between;
@@ -460,16 +565,16 @@
       backdrop-filter: blur(15px);
       border: 1px solid var(--glass-border);
       color: var(--text-main);
-      padding: 10px 22px;
+      padding: 9px 20px;
       border-radius: 14px;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 12.5px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
     .nav-btn:hover {
-      background: rgba(255, 255, 255, 0.12);
+      background: var(--glass-bg-hover);
       transform: translateY(-1px);
     }
 
@@ -488,8 +593,8 @@
 
     .bullet-list li {
       position: relative;
-      padding-left: 22px;
-      font-size: 13.5px;
+      padding-left: 20px;
+      font-size: 13px;
       line-height: 1.5;
       color: var(--text-main);
     }
@@ -499,7 +604,7 @@
       color: var(--accent-cyan);
       position: absolute;
       left: 0;
-      font-size: 12px;
+      font-size: 11px;
       top: 1px;
     }
   </style>
@@ -508,30 +613,35 @@
 
   <div class="app-container">
 
-    <!-- SIDEBAR - LIQUID GLASS iOS 26 -->
-    <div class="sidebar">
+    <!-- SIDEBAR WITH BURGER TRIGGER (DEFAULT COLLAPSED) -->
+    <div class="sidebar" id="appSidebar">
       
-      <div class="brand-section">
+      <div class="sidebar-header">
+        <button class="burger-btn" onclick="toggleSidebar()" title="Toggle Navigation Sidebar">
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+        </button>
         <div class="brand-title">DIGIMAP TRAINER</div>
-        <div class="brand-subtitle">iOS 26 Executive Suite</div>
       </div>
 
-      <!-- SECTION 1: CALENDAR WEEK SELECTION -->
+      <!-- CALENDAR MINGGUAN -->
       <div class="sidebar-section">
-        <div class="sidebar-label">📅 Pilih Minggu (Calendar)</div>
+        <div class="sidebar-label">📅 Pilih Minggu</div>
         <div class="week-nav-list" id="weekNavList">
           <button class="week-btn active" onclick="selectWeek('ALL')">
-            <span>Semua Week</span>
+            <span>📅</span>
+            <span class="week-text">Semua Week</span>
             <span class="week-badge" id="badgeAll">All</span>
           </button>
-          <!-- Dynamic Week Buttons populated via JS -->
         </div>
       </div>
 
-      <!-- SECTION 2: PREFERENCES & LIVE SYNC -->
+      <!-- PREFERENCES SECTION -->
       <div class="sidebar-section" style="margin-top: auto;">
         <div class="sidebar-label">⚙️ Preferences</div>
         <div class="pref-box">
+          
           <div class="status-pill">
             <div class="status-dot" id="syncDot"></div>
             <span id="syncStatus">Menghubungkan...</span>
@@ -544,12 +654,18 @@
           <a href="https://docs.google.com/spreadsheets/d/15xMRwQkcodHVadxxNxkHofPr0_un92jsCH03QFVqFGM/edit?usp=sharing" target="_blank" class="btn-glass-secondary">
             📝 Buka Google Sheet
           </a>
+
+          <!-- APPEARANCE TOGGLE (DEFAULT DEVICE APPEARANCE) -->
+          <button class="appearance-toggle" onclick="cycleAppearance()" id="appearanceBtn">
+            <span>🌗 Mode: <strong id="appearanceModeLabel">Device</strong></span>
+          </button>
+
         </div>
       </div>
 
     </div>
 
-    <!-- MAIN CONTENT AREA -->
+    <!-- MAIN CONTENT -->
     <div class="main-content">
 
       <!-- TOP FILTER BAR -->
@@ -586,18 +702,18 @@
 
         <!-- SLIDE 1: COVER -->
         <div class="glass-slide active" id="slide1">
-          <div style="text-align: center; padding: 60px 20px;">
-            <span class="liquid-badge" style="margin-bottom: 24px; display: inline-block;">WEEKLY EXECUTIVE REPORT</span>
-            <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 12px; background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px;">
-              Laporan Aktivitas & Performa Trainer
+          <div style="text-align: center; padding: 50px 20px;">
+            <span class="liquid-badge" style="margin-bottom: 20px; display: inline-block;">WEEKLY EXECUTIVE REPORT</span>
+            <h1 style="font-size: 38px; font-weight: 800; margin-bottom: 12px; background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-violet) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px;">
+              Laporan Aktivitas Weekly Trainer
             </h1>
-            <p style="color: var(--text-sub); font-size: 16px; margin-bottom: 40px;" id="coverSubtitle">
-              Report Real-time Aktivity
+            <p style="color: var(--text-sub); font-size: 16px; margin-bottom: 36px;" id="coverSubtitle">
+              Report Real-time Activity
             </p>
 
             <div style="display: flex; justify-content: center; gap: 28px; font-size: 14px; color: var(--text-sub); flex-wrap: wrap;">
               <div>📍 <strong id="coverStores">Multi-Store Cabang</strong></div>
-              <div>📅 <span id="coverPeriod">Update Terkini</span></div>
+              <div>📅 <span id="coverPeriod">Kalender Berjalan</span></div>
               <div style="color: var(--accent-cyan); font-weight: 700;">
                 👤 Trainer Executive: <span id="trainerNameDisplay">Frandy Putra</span>
               </div>
@@ -635,8 +751,8 @@
             </div>
           </div>
 
-          <div class="glass-card" style="margin-top: 24px; padding: 24px;">
-            <h3 style="font-size: 15px; margin-bottom: 16px; color: var(--accent-cyan);">Distribusi Kategori Aktivitas Mingguan</h3>
+          <div class="glass-card" style="margin-top: 20px; padding: 20px;">
+            <h3 style="font-size: 14px; margin-bottom: 14px; color: var(--accent-cyan);">Distribusi Kategori Aktivitas Mingguan</h3>
             <div style="height: 200px; width: 100%;">
               <canvas id="categoryChart"></canvas>
             </div>
@@ -654,6 +770,7 @@
             <table>
               <thead>
                 <tr>
+                  <th>Bulan</th>
                   <th>Tanggal</th>
                   <th>Hari</th>
                   <th>Toko</th>
@@ -665,32 +782,32 @@
               </thead>
               <tbody id="dailyLogTableBody">
                 <tr>
-                  <td colspan="7" style="text-align: center; color: var(--text-sub); padding: 30px;">Memuat data dari Google Sheet...</td>
+                  <td colspan="8" style="text-align: center; color: var(--text-sub); padding: 30px;">Memuat data dari Google Sheet...</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- SLIDE 4: CATATAN & ACTION PLAN -->
+        <!-- SLIDE 4: CATATAN & ACTION PLAN (GENERATED DARI KOLOM ACTION PLAN SHEET) -->
         <div class="glass-slide" id="slide4">
           <div class="slide-header">
             <div class="slide-title">🎯 Catatan Lapangan & Action Plan</div>
-            <span class="liquid-badge">Field Notes</span>
+            <span class="liquid-badge">Field Notes & Action Plan</span>
           </div>
 
           <div class="grid-2">
             <div class="glass-card">
-              <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--accent-amber);">Catatan & Kendala Lapangan</h3>
+              <h3 style="font-size: 15px; margin-bottom: 14px; color: var(--accent-amber);">Catatan & Kendala Lapangan</h3>
               <ul class="bullet-list" id="fieldNotesList">
                 <li>Memuat catatan kendala...</li>
               </ul>
             </div>
 
             <div class="glass-card">
-              <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--accent-emerald);">Rencana Tindak Lanjut</h3>
+              <h3 style="font-size: 15px; margin-bottom: 14px; color: var(--accent-emerald);">Rencana Tindak Lanjut (Action Plan)</h3>
               <ul class="bullet-list" id="actionPlanList">
-                <li>Memuat rencana...</li>
+                <li>Memuat action plan dari Google Sheet...</li>
               </ul>
             </div>
           </div>
@@ -720,6 +837,51 @@
     const totalSlides = 4;
     let chartInstance = null;
 
+    // Sidebar Expand / Collapse Logic
+    function toggleSidebar() {
+      const sidebar = document.getElementById('appSidebar');
+      sidebar.classList.toggle('expanded');
+    }
+
+    // Appearance Theme Logic (Device Default / Dark / Light)
+    let currentThemeSetting = 'device'; // 'device', 'dark', 'light'
+
+    function applyTheme() {
+      const root = document.documentElement;
+      const label = document.getElementById('appearanceModeLabel');
+
+      if (currentThemeSetting === 'device') {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        label.innerText = 'Device';
+      } else if (currentThemeSetting === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        label.innerText = 'Dark';
+      } else {
+        root.setAttribute('data-theme', 'light');
+        label.innerText = 'Light';
+      }
+    }
+
+    function cycleAppearance() {
+      if (currentThemeSetting === 'device') {
+        currentThemeSetting = 'dark';
+      } else if (currentThemeSetting === 'dark') {
+        currentThemeSetting = 'light';
+      } else {
+        currentThemeSetting = 'device';
+      }
+      applyTheme();
+    }
+
+    // System theme change listener
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (currentThemeSetting === 'device') {
+        applyTheme();
+      }
+    });
+
+    // Fetch live data from Google Sheet GViz API
     async function fetchDataFromSheet() {
       const syncDot = document.getElementById('syncDot');
       const syncStatus = document.getElementById('syncStatus');
@@ -743,23 +905,26 @@
         }
 
         // Table Data starts from Row 4 (index 3)
+        // Headers: Bulan | Week | Tanggal | Hari | Toko | Kategori Aktivitas | Detail Task | Hasil | Catatan | Action Plan | Foto Evidence
         rawSheetData = rows.slice(3).map(r => {
           const c = r.c || [];
           return {
-            week: c[0] ? String(c[0].v || '') : '',
-            tanggal: c[1] ? (c[1].f || c[1].v || '') : '',
-            hari: c[2] ? String(c[2].v || '') : '',
-            toko: c[3] ? String(c[3].v || '') : '',
-            kategori: c[4] ? String(c[4].v || '') : '',
-            detail: c[5] ? String(c[5].v || '') : '',
-            hasil: c[6] ? String(c[6].v || '') : '',
-            catatan: c[7] ? String(c[7].v || '') : '',
-            evidence: c[8] ? String(c[8].v || '') : ''
+            bulan: c[0] ? String(c[0].v || '') : '',
+            week: c[1] ? String(c[1].v || '') : '',
+            tanggal: c[2] ? (c[2].f || c[2].v || '') : '',
+            hari: c[3] ? String(c[3].v || '') : '',
+            toko: c[4] ? String(c[4].v || '') : '',
+            kategori: c[5] ? String(c[5].v || '') : '',
+            detail: c[6] ? String(c[6].v || '') : '',
+            hasil: c[7] ? String(c[7].v || '') : '',
+            catatan: c[8] ? String(c[8].v || '') : '',
+            actionPlan: c[9] ? String(c[9].v || '') : '',
+            evidence: c[10] ? String(c[10].v || '') : ''
           };
         }).filter(item => item.week || item.hari || item.toko || item.detail);
 
         syncDot.className = 'status-dot online';
-        syncStatus.innerText = `Terhubung Live (${rawSheetData.length} baris data)`;
+        syncStatus.innerText = `Terhubung Live (${rawSheetData.length} baris)`;
 
         populateWeekNav();
         populateTopFilters();
@@ -777,15 +942,17 @@
       const weeks = [...new Set(rawSheetData.map(d => d.week).filter(Boolean))];
 
       let html = `<button class="week-btn ${selectedWeek === 'ALL' ? 'active' : ''}" onclick="selectWeek('ALL')">
-        <span>Semua Week</span>
+        <span>📅</span>
+        <span class="week-text">Semua Week</span>
         <span class="week-badge">All</span>
       </button>`;
 
       weeks.forEach(w => {
         const count = rawSheetData.filter(d => d.week === w).length;
         html += `<button class="week-btn ${selectedWeek === w ? 'active' : ''}" onclick="selectWeek('${w}')">
-          <span>${w}</span>
-          <span class="week-badge">${count} item</span>
+          <span>📌</span>
+          <span class="week-text">${w}</span>
+          <span class="week-badge">${count}</span>
         </button>`;
       });
 
@@ -875,10 +1042,10 @@
       // Render Chart
       renderChart(data);
 
-      // Render Table on Slide 3 (Tanggal | Hari | Toko | Kategori Aktivitas | Detail Task | Hasil | Foto Evidence)
+      // Render Table on Slide 3 (Bulan | Tanggal | Hari | Toko | Kategori | Detail | Hasil | Foto Evidence)
       const tbody = document.getElementById('dailyLogTableBody');
       if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-sub); padding: 30px;">Tidak ada data aktivitas yang cocok dengan filter.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-sub); padding: 30px;">Tidak ada data aktivitas yang cocok dengan filter.</td></tr>';
       } else {
         tbody.innerHTML = data.map(item => {
           let evidenceHtml = '<span style="color:var(--text-sub); font-size:11px;">-</span>';
@@ -892,6 +1059,7 @@
 
           return `
             <tr>
+              <td><strong>${item.bulan || 'Oktober'}</strong></td>
               <td><strong>${item.tanggal || '-'}</strong></td>
               <td>${item.hari || '-'}</td>
               <td><strong>${item.toko || '-'}</strong></td>
@@ -904,20 +1072,20 @@
         }).join('');
       }
 
-      // Render Field Notes & Action Plan
+      // Render Field Notes & Action Plan (Generated strictly from actionPlan column in Google Sheet)
       const notesList = document.getElementById('fieldNotesList');
       const actionList = document.getElementById('actionPlanList');
 
       const notes = data.map(d => d.catatan).filter(Boolean);
-      const actionItems = data.map(d => d.hasil).filter(Boolean);
+      const actionPlans = data.map(d => d.actionPlan).filter(Boolean);
 
       notesList.innerHTML = notes.length 
         ? notes.map(n => `<li>${n}</li>`).join('') 
         : '<li>Seluruh aktivitas berjalan lancar tanpa kendala.</li>';
 
-      actionList.innerHTML = actionItems.length 
-        ? actionItems.map(a => `<li>Evaluasi & tindak lanjut: ${a}</li>`).join('')
-        : '<li>Rencana pemantauan berkala untuk minggu berikutnya.</li>';
+      actionList.innerHTML = actionPlans.length 
+        ? actionPlans.map(a => `<li>${a}</li>`).join('')
+        : '<li>Belum ada action plan khusus yang dicatat di Google Sheet.</li>';
     }
 
     function renderChart(data) {
@@ -954,8 +1122,8 @@
             legend: { display: false }
           },
           scales: {
-            x: { ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } }, grid: { display: false } },
-            y: { ticks: { color: '#94a3b8', stepSize: 1, font: { family: 'Plus Jakarta Sans' } }, grid: { color: 'rgba(255, 255, 255, 0.08)' }, beginAtZero: true }
+            x: { ticks: { color: 'var(--text-sub)', font: { family: 'Plus Jakarta Sans' } }, grid: { display: false } },
+            y: { ticks: { color: 'var(--text-sub)', stepSize: 1, font: { family: 'Plus Jakarta Sans' } }, grid: { color: 'rgba(255, 255, 255, 0.08)' }, beginAtZero: true }
           }
         }
       });
@@ -987,6 +1155,8 @@
       if (e.key === 'ArrowLeft') prevSlide();
     });
 
+    // Initialize Theme & Data
+    applyTheme();
     fetchDataFromSheet();
   </script>
 </body>
