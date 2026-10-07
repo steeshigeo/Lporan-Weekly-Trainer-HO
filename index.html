@@ -121,7 +121,7 @@ small.n{display:block;font-size:12px;color:var(--fg2);margin:6px 6px 0;line-heig
     <div class="row"><label for="pSheet">Link Google Sheet</label><input id="pSheet" autocomplete="off"></div>
     <div class="row"><label for="pYear">Tahun</label><input id="pYear" type="number" min="2000" max="2100"></div>
     <div class="row"><label for="pTab">Pola nama tab bulan</label><input id="pTab" placeholder="{Month}" autocomplete="off"></div>
-    <div class="row"><label for="pScript">URL Apps Script (foto evidence)</label><input id="pScript" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off"></div>
+    <div class="row"><label for="pScript">URL Apps Script (data dan foto)</label><input id="pScript" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off"></div>
   </div>
   <small class="n">Pola: {Month} = January, {Mon} = Jan, {MM} = 01. Jika tidak cocok, app mencoba nama umum lain otomatis. Sheet harus dibagikan "Anyone with the link".</small>
   <button class="btn pri" id="reload">Simpan dan muat ulang data</button>
@@ -219,10 +219,14 @@ async function load(m,force){
   if(cache[m]&&!force)return cache[m];
   const id=sid();if(!id)throw new Error('Link Google Sheet tidak valid. Periksa di Preferences.');
   for(const tab of cands(m)){
-    try{const r=await fetch(`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`);
-      if(!r.ok)continue;const t=await r.text();if(/^\s*<(!doctype|html)/i.test(t))continue;
-      const g=csv(t);if(new Set(g.flat().filter(x=>MN.some(n=>n.toUpperCase()===x.trim().toUpperCase()))).size>=3)continue; // tab Year, bukan tab bulan
-      return cache[m]={events:extract(g),tab}}catch(e){}}
+    try{let g;
+      if(S.script){const r=await fetch(S.script+(S.script.includes('?')?'&':'?')+'tab='+encodeURIComponent(tab));const j=await r.json();if(!j.grid)continue;g=j.grid}
+      else{const r=await fetch(`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&headers=0&sheet=${encodeURIComponent(tab)}`);
+        if(!r.ok)continue;const t=await r.text();if(/^\s*<(!doctype|html)/i.test(t))continue;g=csv(t)}
+      if(new Set(g.flat().filter(x=>MN.some(n=>n.toUpperCase()===String(x).trim().toUpperCase()))).size>=3)continue; // tab Year, bukan tab bulan
+      const events=extract(g);
+      if(!Object.keys(events).length&&!S.script)toast('Tab terbaca tapi tidak ada aktivitas terdeteksi. Link Google sering menghilangkan sel teks di kolom campuran angka dan teks. Pakai Apps Script (Preferences) atau Impor CSV.');
+      return cache[m]={events,tab}}catch(e){}}
   throw new Error(`Tab bulan ${MI[m]} tidak terbaca. Pastikan sheet dibagikan "Anyone with the link", atau atur pola nama tab di Preferences, atau impor CSV.`)}
 
 /* ---------- weeks & slides ---------- */
