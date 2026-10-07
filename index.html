@@ -208,7 +208,7 @@ async function loadEv(force){
   const key=`${S.year}-${M}`;if(evFor===key&&!force)return;
   Object.keys(EV).forEach(k=>delete EV[k]);EVSTAT={rows:0,miss:0,err:'',why:''};
   try{let rows;
-    if(S.script){const r=await fetch(S.script+(S.script.includes('?')?'&':'?')+`m=${S.year}-${String(M+1).padStart(2,'0')}`);const j=await r.json();if(!Array.isArray(j))throw new Error(j.error||'respons Apps Script tidak valid');rows=j.map(o=>[o.tanggal,o.foto,o.aktivitas,o.err,o.tampil])}
+    if(S.script){const r=await fetch(S.script+(S.script.includes('?')?'&':'?')+`m=${S.year}-${String(M+1).padStart(2,'0')}`);const j=await r.json(),arr=Array.isArray(j)?j:j.rows;if(!arr)throw new Error(j.error||'respons Apps Script tidak valid');EVSTAT.srvTotal=j.total;EVSTAT.srvSample=j.sample;rows=arr.map(o=>[o.tanggal,o.foto,o.aktivitas,o.err,o.tampil])}
     else{const r=await fetch(`https://docs.google.com/spreadsheets/d/${sid()}/gviz/tq?tqx=out:csv&sheet=Evidence`);rows=csv(await r.text()).slice(1)}
     EVSTAT.total=rows.length;EVSTAT.sample=rows[0]?String(rows[0][0]):'';let miss=0;
     rows.forEach(r=>{const d=dayOf(r[0],+S.year,M)||dayOf(r[4],+S.year,M);if(!d)return;EVSTAT.rows++;let f=String(r[1]||'').trim().replace(/^=IMAGE\("?([^")]+)"?.*$/i,'$1');
@@ -258,7 +258,7 @@ function build(state){
     const chunks=items.length?Array.from({length:Math.ceil(items.length/3)},(_,c)=>items.slice(c*3,c*3+3)):[[]];
     chunks.forEach((ch,c)=>out.push({t:'day',...info,items:ch,page:c+1,pages:chunks.length,extra:c===chunks.length-1?ph.extra:[]}))});
   const evp=[];wk.forEach(d=>{const wd=(new Date(Y,M,d).getDay()+6)%7;(EV[gk(d)]||[]).filter(p=>p.foto).forEach(p=>evp.push({day:DY[wd],date:`${d} ${MI[M].slice(0,3)}`,akt:p.akt,foto:p.foto}))});
-  const msg=EVSTAT.err?`Tab Evidence tidak terbaca: ${EVSTAT.err}`:EVSTAT.rows?`${EVSTAT.rows} baris Evidence ditemukan di bulan ini, tetapi foto untuk week ini tidak ada atau tidak terbaca${EVSTAT.why?` (${EVSTAT.why})`:''}. Pasang atau deploy ulang Apps Script di Preferences.`:(EVSTAT.total?`Tab Evidence berisi ${EVSTAT.total} baris, tetapi tanggalnya (contoh: ${EVSTAT.sample}) tidak cocok dengan ${MI[M]} ${Y}.`:'Tidak ada baris Evidence yang diterima. Pastikan Apps Script sudah di-deploy ulang dengan versi terbaru.');
+  const msg=EVSTAT.err?`Tab Evidence tidak terbaca: ${EVSTAT.err}`:EVSTAT.rows?`${EVSTAT.rows} baris Evidence ditemukan di bulan ini, tetapi foto untuk week ini tidak ada atau tidak terbaca${EVSTAT.why?` (${EVSTAT.why})`:''}. Pasang atau deploy ulang Apps Script di Preferences.`:(EVSTAT.total?`Tab Evidence berisi ${EVSTAT.total} baris, tetapi tanggalnya (contoh: ${EVSTAT.sample}) tidak cocok dengan ${MI[M]} ${Y}.`:EVSTAT.srvTotal!=null?`Apps Script membaca ${EVSTAT.srvTotal} baris di tab Evidence, tetapi tidak ada yang cocok dengan ${MI[M]} ${Y}. Baris pertama: ${EVSTAT.srvSample||'-'}.`:'Tidak ada baris Evidence yang diterima. Pastikan Apps Script sudah di-deploy ulang dengan versi terbaru.');
   const epg=Math.max(1,Math.ceil(evp.length/6));for(let c=0;c<epg;c++)out.push({t:'ev',page:c+1,pages:epg,ph:evp.slice(c*6,c*6+6),msg});
   const tokos=[...new Set(all.map(i=>i.toko).filter(Boolean))],cc={};all.forEach(i=>cc[i.cat]=(cc[i.cat]||0)+1);
   const cats=Object.entries(cc).sort((a,b)=>b[1]-a[1]),act=lines.filter(l=>!l[1].startsWith('Belum')).length;
