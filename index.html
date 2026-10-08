@@ -134,6 +134,7 @@ small.n{display:block;font-size:12px;color:var(--fg2);margin:6px 6px 0;line-heig
   <h2>Export week ini</h2>
   <button class="btn" id="exPptx">Export .pptx (PowerPoint)</button>
   <button class="btn" id="exKey">Export .key (Keynote)</button>
+  <small class="n">Versi 2026.10.07-d</small>
 </aside>
 
 <main class="app">
@@ -183,10 +184,11 @@ const CATS=[[/off\s?day|libur|cuti/i,'Off Day'],[/interview|rekrut/i,'Rekrutmen'
 const catOf=t=>(CATS.find(c=>c[0].test(t))||[0,'Lainnya'])[1];
 /* satu sel tanggal -> daftar aktivitas. Baris "Visit Mxxx ..." = toko; baris "- ..." = aktivitas; "Catatan:/Kendala:" dan "Action Plan:/Tindak lanjut:" opsional */
 /* "Detail #catatan/kendala *action plan" -> {d,n,a} */
-function marks(b){const n=[],a=[],f=b.search(/(?:^|\s)[#*]/);
-  if(f<0)return{d:b,n:'',a:''};
-  for(const m of b.matchAll(/(?:^|\s)([#*])([\s\S]*?)(?=\s[#*]|$)/g)){const v=m[2].trim();if(v)(m[1]==='#'?n:a).push(v)}
-  return{d:b.slice(0,f).trim()||b,n:n.join('; '),a:a.join('; ')}}
+function marks(b){const p=b.split(/([#＃*＊∗✱])/);
+  if(p.length<3)return{d:b,n:'',a:''};
+  const n=[],a=[];
+  for(let i=1;i<p.length;i+=2){const v=(p[i+1]||'').trim();if(v)(/[#＃]/.test(p[i])?n:a).push(v)}
+  return{d:p[0].trim()||b,n:n.join('; '),a:a.join('; ')}}
 function parseCell(txt){const out=[];let toko='';
   txt.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(l=>{const b=l.replace(/^[-•*–]\s*/,'');let m;
     if(out.length&&(m=b.match(/^(?:catatan|kendala|note)s?\s*[:：]\s*(.+)/i))){out.at(-1).n=m[1];return}
@@ -209,9 +211,11 @@ function dayOf(v,y,m){v=String(v||'').trim();let x;if(!v)return 0;
   if(x=v.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/)){const a=+x[1],b=+x[2],yy=+x[3]<100?2000+ +x[3]:+x[3];if(yy!==y)return 0;return b===m+1?a:a===m+1?b:0}
   if(x=v.match(/(\d{1,2})\s+([A-Za-z]{3,})\s*,?\s*(\d{4})?/)){const k=x[2].slice(0,3).toLowerCase(),f=n=>n.slice(0,3).toLowerCase()===k;return(MN.findIndex(f)===m||MI.findIndex(f)===m)&&(!x[3]||+x[3]===y)?+x[1]:0}
   return 0}
-async function loadEv(force){
+let evP=null;
+function loadEv(force){if(evP&&!force)return evP;const p=loadEv0(force).finally(()=>{if(evP===p)evP=null});return evP=p}
+async function loadEv0(force){
   const key=`${S.year}-${M}`;if(evFor===key&&!force)return;
-  Object.keys(EV).forEach(k=>delete EV[k]);EVSTAT={rows:0,miss:0,err:'',why:''};
+  const NEW={};EVSTAT={rows:0,miss:0,err:'',why:''};
   try{let rows;
     if(S.script){const r=await fetch(S.script+(S.script.includes('?')?'&':'?')+`m=${S.year}-${String(M+1).padStart(2,'0')}`);const j=await r.json(),arr=Array.isArray(j)?j:j.rows;if(!arr)throw new Error(j.error||'respons Apps Script tidak valid');EVSTAT.srvTotal=j.total;EVSTAT.srvSample=j.sample;rows=arr.map(o=>[o.tanggal,o.foto,o.aktivitas,o.err,o.tampil])}
     else{const r=await fetch(`https://docs.google.com/spreadsheets/d/${sid()}/gviz/tq?tqx=out:csv&sheet=Evidence`);rows=csv(await r.text()).slice(1)}
@@ -219,7 +223,8 @@ async function loadEv(force){
     rows.forEach(r=>{const d=dayOf(r[0],+S.year,M)||dayOf(r[4],+S.year,M);if(!d)return;EVSTAT.rows++;let f=String(r[1]||'').trim().replace(/^=IMAGE\("?([^")]+)"?.*$/i,'$1');
       const dm=f.match(/drive\.google\.com\/file\/d\/([\w-]+)/);if(dm)f=`https://drive.google.com/thumbnail?id=${dm[1]}&sz=w1000`;
       if(!/^(https?:|data:image)/.test(f)){miss++;EVSTAT.miss++;if(r[3])EVSTAT.why=r[3];f=''}
-      (EV[`${S.year}-${M}-${d}`]=EV[`${S.year}-${M}-${d}`]||[]).push({foto:f,akt:r[2]||''})});
+      const L=NEW[`${S.year}-${M}-${d}`]=NEW[`${S.year}-${M}-${d}`]||[];if(!L.some(x=>x.foto===f&&x.akt===(r[2]||'')))L.push({foto:f,akt:r[2]||''})});
+    Object.keys(EV).forEach(k=>delete EV[k]);Object.assign(EV,NEW);
     evFor=key;if(miss&&!S.script)toast(`${miss} foto evidence tidak terbaca dari link. Foto "insert image in cell" butuh Apps Script (lihat Preferences).`)
   }catch(e){evFor=null;const m=String(e.message||e);EVSTAT.err=/load failed|failed to fetch|networkerror/i.test(m)?'Apps Script tidak bisa dibaca. Kemungkinan izin belum disetujui atau script error. Buka URL Apps Script + ?m=2026-10 di tab baru untuk melihat errornya.':m}}
 const sid=()=>(S.sheet.match(/\/d\/([\w-]+)/)||S.sheet.match(/^([\w-]{20,})$/)||[])[1];
@@ -293,10 +298,11 @@ function go(i){I=Math.max(0,Math.min(slides.length-1,i));
 
 /* ---------- navigation ---------- */
 function drawWeeks(){$('#weeks').innerHTML=weeks.map((_,k)=>`<button role="tab" class="${k===W?'on':''}" data-k="${k}">Week ${k+1}</button>`).join('')}
-async function show(force){
+let SHN=0;
+async function show(force){const tk=++SHN;
   weeks=weeksOf(+S.year,M);if(W>=weeks.length)W=0;drawWeeks();I=0;
   slides=[{t:'msg',m:'Memuat data kalender…'}];render();
-  try{const st=await load(M,force);await loadEv(force);slides=build(st)}catch(e){slides=[{t:'msg',m:e.message}]}
+  try{const st=await load(M,force);await loadEv(force);if(tk!==SHN)return;slides=build(st)}catch(e){if(tk!==SHN)return;slides=[{t:'msg',m:e.message}]}
   render()}
 function pickWeek(k){W=k;drawWeeks();if(cache[M]){slides=build(cache[M]);I=0;render()}else show()}
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),3800)}
