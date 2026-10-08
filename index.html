@@ -142,6 +142,69 @@ body{-webkit-text-size-adjust:100%}button{touch-action:manipulation}
 #side{top:8px;left:8px;bottom:8px;width:calc(100vw - 16px);padding-top:74px;border-radius:30px}
 .row input{font-size:16px}
 }
+
+/* ===== polish ===== */
+body::before{animation:aur 28s ease-in-out infinite alternate}
+@keyframes aur{to{transform:translate3d(-3%,2.5%,0) scale(1.14) rotate(2deg)}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleX(0)}}
+.stage.glass{box-shadow:inset 0 1.5px 0 var(--gb),0 30px 80px var(--sh),0 0 90px color-mix(in srgb,var(--acc) 16%,transparent)}
+.pill button.on{background:linear-gradient(135deg,var(--acc),#7c5cff)}
+.cover h1,.day h2{background:linear-gradient(120deg,var(--fg) 12%,var(--acc) 70%,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover::before{content:"";position:absolute;right:-10cqw;top:-14cqw;width:52cqw;height:52cqw;border-radius:50%;background:radial-gradient(circle at 35% 35%,color-mix(in srgb,var(--acc) 70%,#fff),transparent 66%);opacity:.38;filter:blur(6px);pointer-events:none}
+.cover::after{content:"";position:absolute;right:4cqw;top:-6cqw;width:36cqw;height:36cqw;border-radius:50%;border:1px solid var(--gb);pointer-events:none}
+.eyebrow{font-size:1.9cqw;letter-spacing:.22em;text-transform:uppercase;color:var(--acc);font-weight:600;margin-bottom:1.6cqw}
+.who{display:flex;align-items:center;gap:1.6cqw}
+.av{width:6cqw;height:6cqw;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:2.2cqw;color:#fff;background:linear-gradient(135deg,var(--acc),#a855f7);box-shadow:0 8px 24px color-mix(in srgb,var(--acc) 40%,transparent)}
+.cat{background:hsl(var(--h,215) var(--sa,82%) 44%);color:#fff}
+.it{box-shadow:inset 3px 0 0 hsl(var(--h,215) var(--sa,82%) 58%),inset 0 1px 0 var(--gb)}
+.stats b{background:linear-gradient(135deg,var(--fg),var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bars{display:grid;gap:.9cqw;margin:1.2cqw 0}
+.br{display:grid;grid-template-columns:16cqw 1fr 3cqw;align-items:center;gap:1.2cqw;font-size:1.7cqw}
+.tr{height:1.1cqw;border-radius:99px;background:var(--chip);overflow:hidden}
+.tr i{display:block;height:100%;width:var(--w);border-radius:99px;background:hsl(var(--h) var(--sa,82%) 58%);transform-origin:left}
+.gal figure{transition:transform .35s cubic-bezier(.2,.9,.25,1)}.gal figure:hover{transform:translateY(-4px)}
+.gal .gi{box-shadow:0 10px 30px var(--sh);cursor:zoom-in}
+.slide.on .it,.slide.on .stats div,.slide.on .nar,.slide.on .bars,.slide.on .sl,.slide.on .gal figure{animation:rise .6s cubic-bezier(.2,.9,.25,1) both;animation-delay:calc(var(--i,5)*90ms + 120ms)}
+.slide.on .tr i{animation:grow 1s cubic-bezier(.2,.9,.25,1) both;animation-delay:calc(var(--i,0)*90ms + 450ms)}
+.slide.on .eyebrow{animation:rise .6s both}.slide.on.cover h1{animation:rise .7s .1s both}.slide.on.cover p{animation:rise .7s .2s both}.slide.on .who{animation:rise .7s .3s both}.slide.on.day .l{animation:rise .6s both}
+@media(prefers-reduced-motion:reduce){body::before{animation:none}*{animation-duration:.01s!important}}
+/* ===== dropdown bulan (turun ke bawah) ===== */
+.top{overflow:visible}
+.mwrap{position:relative;flex:none}
+.mbtn{display:flex;align-items:center;gap:9px;padding:12px 18px;border-radius:999px;font-weight:600;font-size:14px;transition:transform .2s}
+.mbtn:active{transform:scale(.96)}.mbtn svg{transition:transform .35s cubic-bezier(.2,.9,.25,1)}.mbtn.open svg{transform:rotate(180deg)}
+#monthMenu{position:absolute;top:calc(100% + 10px);left:0;min-width:210px;max-height:min(82dvh,540px);overflow-y:auto;border-radius:24px;padding:6px;z-index:18;display:flex;flex-direction:column;gap:2px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-10px) scale(.96);transform-origin:top left;transition:opacity .25s,transform .4s cubic-bezier(.2,.9,.25,1),visibility .25s;scrollbar-width:none}
+#monthMenu::-webkit-scrollbar{display:none}
+#monthMenu.open{opacity:1;visibility:visible;pointer-events:auto;transform:none}
+#monthMenu button{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 14px;border-radius:16px;font-size:14.5px;text-align:left;transition:background .2s}
+#monthMenu button:hover{background:var(--chip)}#monthMenu button.on{background:linear-gradient(135deg,var(--acc),#7c5cff);color:#fff;font-weight:600}
+#monthMenu small{font-size:11px;opacity:.75}
+/* header sidebar */
+.sh{display:flex;align-items:center;justify-content:space-between}
+.sh h2{margin:0!important}
+#close{display:none;width:30px;height:30px;border-radius:50%;background:var(--chip);position:relative;place-items:center}
+#close i{position:absolute;width:13px;height:2px;border-radius:2px;background:var(--fg)}#close i:nth-child(1){transform:rotate(45deg)}#close i:nth-child(2){transform:rotate(-45deg)}
+.btn:hover,.seg button:hover{filter:brightness(1.08)}
+@media (max-width:700px),(max-height:520px){
+#menu{width:40px;height:40px;top:max(10px,env(safe-area-inset-top));left:10px}
+#menu i{width:17px;height:2px}#menu i:nth-child(1){transform:translateY(-5.5px)}#menu i:nth-child(3){transform:translateY(5.5px)}
+body.open #menu{opacity:0;pointer-events:none}
+.top{padding-left:48px;gap:6px}
+.pill{padding:3px}.pill button{padding:7px 12px;font-size:13px}
+.mbtn{padding:9px 13px;font-size:13px}
+#monthMenu{min-width:170px}#monthMenu button{padding:9px 12px;font-size:13.5px}
+#side{width:min(300px,80vw);top:8px;bottom:8px;left:8px;padding:14px 14px 18px;border-radius:26px}
+.sh{position:sticky;top:-4px;z-index:3;margin:-4px -6px 2px;padding:8px 6px;border-radius:18px;background:color-mix(in srgb,var(--bg1) 55%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+#close{display:grid}
+#side h2{font-size:11px;margin:16px 4px 6px}
+.row{padding:8px 0}.row label{font-size:11px}
+.seg button{padding:7px 2px;font-size:12.5px}
+.btn{padding:11px;font-size:13.5px;border-radius:14px}
+small.n{font-size:11px}
+.av{width:46px;height:46px;font-size:16px}.bars{margin:16px 0}.nar{margin-bottom:4px}.sum .sl{gap:8px;margin-top:4px}.eyebrow{font-size:11px}
+.br{grid-template-columns:96px 1fr 22px;font-size:13px}.tr{height:8px}
+}
 </style>
 </head>
 <body>
@@ -149,7 +212,7 @@ body{-webkit-text-size-adjust:100%}button{touch-action:manipulation}
 <div id="scrim"></div>
 
 <aside id="side" class="glass" aria-label="Sidebar">
-  <h2>Preferences</h2>
+  <div class="sh"><h2>Preferences</h2><button id="close" aria-label="Tutup menu"><i></i><i></i></button></div>
   <div class="grp">
     <div class="row"><label for="pName">Nama trainer</label><input id="pName" autocomplete="off"></div>
     <div class="row"><label for="pTitle">Jabatan</label><input id="pTitle" autocomplete="off"></div>
@@ -169,12 +232,12 @@ body{-webkit-text-size-adjust:100%}button{touch-action:manipulation}
   <h2>Export week ini</h2>
   <button class="btn" id="exPptx">Export .pptx (PowerPoint)</button>
   <button class="btn" id="exKey">Export .key (Keynote)</button>
-  <small class="n">Versi 2026.10.07-e</small>
+  <small class="n">Versi 2026.10.07-g</small>
 </aside>
 
 <main class="app">
   <div class="top">
-    <div class="pill glass"><select id="month" aria-label="Bulan"></select></div>
+    <div class="mwrap"><button class="mbtn glass" id="monthBtn" aria-haspopup="listbox" aria-expanded="false"><span id="monthLbl"></span><svg viewBox="0 0 12 8" width="11" height="8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1.5l5 5 5-5"/></svg></button><div id="monthMenu" class="glass" role="listbox"></div></div>
     <div class="pill glass" id="weeks" role="tablist"></div>
     <div class="ttl" id="who"></div>
   </div>
@@ -313,13 +376,15 @@ function build(state){
     +(tokos.length?` Toko yang dikunjungi: ${tokos.join(', ')}.`:'')+(cats.length?` Fokus utama: ${cats.slice(0,3).map(c=>`${c[0]} (${c[1]})`).join(', ')}.`:'')
     +(kend||aksi?` Terdapat ${kend} catatan/kendala dan ${aksi} action plan.`:' Belum ada catatan kendala atau action plan.')+(foto?` ${foto} foto evidence terlampir.`:''):'Belum ada aktivitas yang tercatat di kalender untuk week ini.';
   out.push({t:'sum',total:all.length,act,days:wk.length,tokos,cats,foto,text,lines});return out}
+const HUE={'Store Visit':212,'Meeting':268,'Rekrutmen':158,'Monitoring':34,'Training':330,'Koordinasi':96,'Administrasi & Materi':190,'Off Day':220,'Lainnya':245};
+const cs=c=>`--h:${HUE[c]??245};--sa:${c==='Off Day'?'12%':'82%'}`;
 const phHTML=a=>(a||[]).map(u=>`<img class="pi" src="${esc(u)}" alt="Foto evidence" loading="lazy">`).join('');
 function slideHTML(s){
-  if(s.t==='cover')return `<section class="slide cover"><h1>${esc(s.h)}</h1><p>${esc(s.sub)}</p><div class="who"><b>${esc(S.name)}</b><span>${esc(S.title)}</span></div></section>`;
+  if(s.t==='cover')return `<section class="slide cover"><div class="eyebrow">Laporan Aktivitas Mingguan</div><h1>${esc(s.h)}</h1><p>${esc(s.sub)}</p><div class="who"><div class="av">${esc(S.name.split(/\s+/).map(w=>w[0]||'').slice(0,2).join('').toUpperCase())}</div><div><b>${esc(S.name)}</b><span>${esc(S.title)}</span></div></div></section>`;
   if(s.t==='day')return `<section class="slide day"><div class="l"><h2>${s.day}</h2><div class="d">${s.date}${s.pages>1?`, bagian ${s.page}/${s.pages}`:''}</div><div class="m"><span>${s.bulan}</span><span>Week ${s.week}</span></div>${s.tokos.length?`<div class="s">Toko: ${esc(s.tokos.join(', '))}</div>`:''}<div class="s">${esc(s.sum)}</div></div>
-    <div class="items">${s.items.length?s.items.map(i=>`<div class="it"><div><span class="cat">${esc(i.cat)}</span></div><div class="t">${esc(i.text)}</div><div class="f"><div><label>Catatan / Kendala</label><p contenteditable data-k="${i.k}" data-f="n" data-s="${esc(i.n0||'')}" data-ph="Ketuk untuk isi">${esc(i.n)}</p></div><div><label>Action Plan / Tindak Lanjut</label><p contenteditable data-k="${i.k}" data-f="a" data-s="${esc(i.a0||'')}" data-ph="Ketuk untuk isi">${esc(i.a)}</p></div></div></div>`).join(''):'<div class="empty">Belum ada aktivitas di kalender</div>'}</div></section>`;
-  if(s.t==='ev')return `<section class="slide evs"><h2>Foto Evidence${s.pages>1?`, bagian ${s.page}/${s.pages}`:''}</h2>${s.ph.length?`<div class="gal">${s.ph.map(p=>`<figure><img class="pi gi" src="${esc(p.foto)}" alt="Foto evidence" loading="lazy"><figcaption><b>${p.day}, ${p.date}</b>${esc(p.akt)}</figcaption></figure>`).join('')}</div>`:`<div class="msg">${esc(s.msg)}</div>`}</section>`;
-  if(s.t==='sum')return `<section class="slide sum"><h2>Summary ${esc('Week '+(W+1))}</h2><div class="stats"><div><b>${s.total}</b>aktivitas</div><div><b>${s.act}/${s.days}</b>hari terisi</div><div><b>${s.tokos.length}</b>toko</div><div><b>${s.foto}</b>foto evidence</div></div><p class="nar">${esc(s.text)}</p><div class="cats">${s.cats.map(c=>`<span class="cat">${esc(c[0])} ${c[1]}</span>`).join('')}</div><div class="sl">${s.lines.map(l=>`<p><b>${l[0]}</b>${esc(l[1])}</p>`).join('')}</div></section>`;
+    <div class="items">${s.items.length?s.items.map((i,n)=>`<div class="it" style="${cs(i.cat)};--i:${n}"><div><span class="cat">${esc(i.cat)}</span></div><div class="t">${esc(i.text)}</div><div class="f"><div><label>Catatan / Kendala</label><p contenteditable data-k="${i.k}" data-f="n" data-s="${esc(i.n0||'')}" data-ph="Ketuk untuk isi">${esc(i.n)}</p></div><div><label>Action Plan / Tindak Lanjut</label><p contenteditable data-k="${i.k}" data-f="a" data-s="${esc(i.a0||'')}" data-ph="Ketuk untuk isi">${esc(i.a)}</p></div></div></div>`).join(''):'<div class="empty">Belum ada aktivitas di kalender</div>'}</div></section>`;
+  if(s.t==='ev')return `<section class="slide evs"><h2>Foto Evidence${s.pages>1?`, bagian ${s.page}/${s.pages}`:''}</h2>${s.ph.length?`<div class="gal">${s.ph.map((p,n)=>`<figure style="--i:${n}"><img class="pi gi" src="${esc(p.foto)}" alt="Foto evidence" loading="lazy"><figcaption><b>${p.day}, ${p.date}</b>${esc(p.akt)}</figcaption></figure>`).join('')}</div>`:`<div class="msg">${esc(s.msg)}</div>`}</section>`;
+  if(s.t==='sum')return `<section class="slide sum"><h2>Summary ${esc('Week '+(W+1))}</h2><div class="stats"><div style="--i:0"><b>${s.total}</b>aktivitas</div><div style="--i:1"><b>${s.act}/${s.days}</b>hari terisi</div><div style="--i:2"><b>${s.tokos.length}</b>toko</div><div style="--i:3"><b>${s.foto}</b>foto evidence</div></div><p class="nar">${esc(s.text)}</p><div class="bars">${s.cats.slice(0,5).map((c,n)=>`<div class="br" style="${cs(c[0])};--w:${Math.round(c[1]/s.cats[0][1]*100)}%;--i:${n}"><span>${esc(c[0])}</span><div class="tr"><i></i></div><b>${c[1]}</b></div>`).join('')}</div><div class="sl">${s.lines.map(l=>`<p><b>${l[0]}</b>${esc(l[1])}</p>`).join('')}</div></section>`;
   return `<section class="slide"><div class="msg">${esc(s.m)}</div></section>`}
 function render(){
   $('#stage').innerHTML=slides.map(slideHTML).join('');
@@ -342,6 +407,10 @@ async function show(force){const tk=++SHN;
   render()}
 function pickWeek(k){W=k;drawWeeks();if(cache[M]){slides=build(cache[M]);I=0;render()}else show()}
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),3800)}
+function drawMonths(){$('#monthLbl').textContent=MI[M];
+  $('#monthMenu').innerHTML=MI.map((m,k)=>`<button role="option" data-k="${k}" class="${k===M?'on':''}">${m}${k===now.getMonth()&&+S.year===now.getFullYear()?'<small>bulan ini</small>':''}</button>`).join('')}
+function monthMenu(o){const m=$('#monthMenu');m.classList.toggle('open',o);$('#monthBtn').classList.toggle('open',o);$('#monthBtn').setAttribute('aria-expanded',o);
+  if(o){m.scrollTop=0;if(m.scrollHeight>m.clientHeight){const a=m.querySelector('.on');if(a)m.scrollTop=a.offsetTop-90}}}
 function menu(o){document.body.classList.toggle('open',o);$('#menu').setAttribute('aria-expanded',o);$('#menu').setAttribute('aria-label',o?'Tutup menu':'Buka menu')}
 
 /* ---------- export ---------- */
@@ -380,13 +449,15 @@ async function exportDeck(key){
 
 /* ---------- init ---------- */
 function init(){
-  $('#month').innerHTML=MI.map((m,k)=>`<option value="${k}">${m}</option>`).join('');$('#month').value=M;
+  drawMonths();
   const set=(id,k)=>{const e=$(id);e.value=S[k];e.addEventListener('input',()=>{S[k]=e.value;save();$('#who').textContent=`${S.name}, ${S.title}`;if(k==='name'||k==='title')render()})};
   set('#pName','name');set('#pTitle','title');set('#pSheet','sheet');set('#pYear','year');set('#pTab','tab');set('#pScript','script');
   $('#who').textContent=`${S.name}, ${S.title}`;
   document.querySelectorAll('#theme button').forEach(b=>b.onclick=()=>{S.theme=b.dataset.v;save();applyTheme()});
-  $('#menu').onclick=()=>menu(!document.body.classList.contains('open'));$('#scrim').onclick=()=>menu(false);
-  $('#month').onchange=e=>{M=+e.target.value;W=0;show()};
+  $('#menu').onclick=()=>menu(!document.body.classList.contains('open'));$('#scrim').onclick=()=>menu(false);$('#close').onclick=()=>menu(false);
+  $('#monthBtn').onclick=e=>{e.stopPropagation();monthMenu(!$('#monthMenu').classList.contains('open'))};
+  $('#monthMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;M=+b.dataset.k;W=0;drawMonths();monthMenu(false);show()};
+  addEventListener('click',e=>{if(!e.target.closest('.mwrap'))monthMenu(false)});
   $('#weeks').onclick=e=>{const b=e.target.closest('button');if(b)pickWeek(+b.dataset.k)};
   $('#prev').onclick=()=>go(I-1);$('#next').onclick=()=>go(I+1);
   $('#fs').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();
@@ -396,7 +467,7 @@ function init(){
   addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||e.target.isContentEditable)return;
     if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(I+1)}
     else if(e.key==='ArrowLeft'||e.key==='PageUp')go(I-1);
-    else if(e.key==='Escape')menu(false);else if(e.key==='f')$('#fs').click()});
+    else if(e.key==='Escape'){menu(false);monthMenu(false)}else if(e.key==='f')$('#fs').click()});
   let x0=null,y0=0;const st=$('#stage');
   st.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});
   st.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5)go(I+(dx<0?1:-1));x0=null});
